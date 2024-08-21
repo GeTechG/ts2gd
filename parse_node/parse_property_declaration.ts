@@ -12,12 +12,14 @@ export const isDecoratedAsExports = (
     | ts.GetAccessorDeclaration
     | ts.SetAccessorDeclaration
 ) => {
-  return !!node.decorators?.find(
-    (dec) =>
-      dec.expression.getText() === "exports" ||
-      (ts.isCallExpression(dec.expression) &&
-        dec.expression.expression.getText() === "exports")
-  )
+  return !!ts
+    .getDecorators(node)
+    ?.find(
+      (dec) =>
+        dec.expression.getText() === "exports" ||
+        (ts.isCallExpression(dec.expression) &&
+          dec.expression.expression.getText() === "exports")
+    )
 }
 
 export const parseExports = (
@@ -27,12 +29,14 @@ export const parseExports = (
     | ts.SetAccessorDeclaration,
   props: ParseState
 ) => {
-  const decoration = node.decorators?.find(
-    (dec) =>
-      dec.expression.getText() === "exports" ||
-      (ts.isCallExpression(dec.expression) &&
-        dec.expression.expression.getText() === "exports")
-  )
+  const decoration = ts
+    .getDecorators(node)
+    ?.find(
+      (dec) =>
+        dec.expression.getText() === "exports" ||
+        (ts.isCallExpression(dec.expression) &&
+          dec.expression.expression.getText() === "exports")
+    )
 
   const typeGodotName = getGodotType(
     node,
@@ -149,9 +153,9 @@ export const isDecoratedAsExportFlags = (
     | ts.GetAccessorDeclaration
     | ts.SetAccessorDeclaration
 ): boolean => {
-  return !!node.decorators?.find((dec) =>
-    dec.expression.getText().startsWith("export_flags")
-  )
+  return !!ts
+    .getDecorators(node)
+    ?.find((dec) => dec.expression.getText().startsWith("export_flags"))
 }
 
 export const parseExportFlags = (
@@ -161,9 +165,9 @@ export const parseExportFlags = (
     | ts.SetAccessorDeclaration,
   props: ParseState
 ): string => {
-  const decoration = node.decorators?.find((dec) =>
-    dec.expression.getText().startsWith("export_flags")
-  )
+  const decoration = ts
+    .getDecorators(node)
+    ?.find((dec) => dec.expression.getText().startsWith("export_flags"))
 
   if (!decoration || decoration.expression.kind !== SyntaxKind.CallExpression) {
     addError({

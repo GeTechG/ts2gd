@@ -278,7 +278,7 @@ ${chalk.green(
       return false
     }
 
-    for (const dec of classNode.decorators ?? []) {
+    for (const dec of ts.getDecorators(classNode) ?? []) {
       if (dec.expression.getText() === "autoload") {
         return true
       }

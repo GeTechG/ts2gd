@@ -27,9 +27,9 @@ const getClassDeclarationHeader = (
     extendsFrom = type.getText()
   }
 
-  const isTool = !!node.decorators?.find(
-    (dec) => dec.expression.getText() === "tool"
-  )
+  const isTool = !!ts
+    .getDecorators(node)
+    ?.find((dec) => dec.expression.getText() === "tool")
 
   return `${isTool ? "tool\n" : ""}${
     extendsFrom ? `extends ${extendsFrom}` : ""
@@ -57,8 +57,11 @@ export const parseSourceFile = (
     (statement) =>
       statement.kind === SyntaxKind.ClassDeclaration &&
       // skip class type declarations
-      (statement.modifiers ?? []).filter((m) => m.getText() === "declare")
-        .length === 0
+      (
+        (ts.canHaveModifiers(statement)
+          ? ts.getModifiers(statement)
+          : undefined) ?? []
+      ).filter((m) => m.getText() === "declare").length === 0
   ) as ts.ClassDeclaration[]
 
   if (allClasses.length === 0) {
@@ -104,7 +107,13 @@ export const parseSourceFile = (
 
     const parsedStatement = parseNode(statement, props)
 
-    if (!statement.modifiers?.map((m) => m.getText()).includes("declare")) {
+    const modifiers =
+      ts.canHaveModifiers(statement) && ts.getModifiers(statement)
+    if (
+      !(ts.canHaveModifiers(statement) ? ts.getModifiers(statement) : undefined)
+        ?.map((m) => m.getText())
+        .includes("declare")
+    ) {
       // TODO: Push this logic into class declaration and expression classes
 
       const classDecl = statement as ts.ClassDeclaration | ts.ClassExpression

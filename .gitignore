@@ -6,3 +6,5 @@ js/
 .import/
 export.cfg
 export_presets.cfg
+_godot_defs/
+godot_source/

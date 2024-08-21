@@ -6,6 +6,8 @@ module.exports = {
     "**/js/**",
     ".eslintrc.js",
     "tsconfig.json",
+    "package.json",
+    "package-lock.json",
   ],
   env: {
     es2021: true,
@@ -20,7 +22,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 13,
     sourceType: "module",
-    project: "./tsconfig.json",
+    project: './tsconfig.json',
+    extraFileExtensions: ['.json'],
   },
   plugins: ["import", "prettier", "@typescript-eslint"],
   rules: {
