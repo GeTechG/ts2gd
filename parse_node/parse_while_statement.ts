@@ -1,98 +1,98 @@
-import ts from "typescript"
+import ts from "typescript";
 
-import { ParseNodeType, ParseState, combine } from "../parse_node"
-import { Test } from "../tests/test"
+import { ParseNodeType, ParseState, combine } from "../parse_node";
+import { Test } from "../tests/test";
 
 export const parseWhileStatement = (
-  node: ts.WhileStatement,
-  props: ParseState
+    node: ts.WhileStatement,
+    props: ParseState,
 ): ParseNodeType => {
-  const newProps = { ...props, mostRecentControlStructureIsSwitch: false }
+    const newProps = { ...props, mostRecentControlStructureIsSwitch: false };
 
-  props.scope.enterScope()
+    props.scope.enterScope();
 
-  const result = combine({
-    parent: node,
-    nodes: [node.expression, node.statement],
-    props: newProps,
-    addIndent: true,
-    parsedObjs: (expr, statement) => {
-      const beforeLines =
-        expr.extraLines
-          ?.filter((line) => line.type === "before")
-          .map((e) => e.line)
-          .join("\n") ?? ""
-      const afterLines =
-        expr.extraLines
-          ?.filter((line) => line.type === "after")
-          .map((e) => e.line)
-          .join("\n") ?? ""
+    const result = combine({
+        parent: node,
+        nodes: [node.expression, node.statement],
+        props: newProps,
+        addIndent: true,
+        parsedObjs: (expr, statement) => {
+            const beforeLines =
+                expr.extraLines
+                    ?.filter((line) => line.type === "before")
+                    .map((e) => e.line)
+                    .join("\n") ?? "";
+            const afterLines =
+                expr.extraLines
+                    ?.filter((line) => line.type === "after")
+                    .map((e) => e.line)
+                    .join("\n") ?? "";
 
-      return `${beforeLines}
+            return `${beforeLines}
 while ${expr.content}:
   ${afterLines}
   ${statement.content}
   ${beforeLines}
-`
-    },
-  })
+`;
+        },
+    });
 
-  result.extraLines = []
+    result.extraLines = [];
 
-  props.scope.leaveScope()
+    props.scope.leaveScope();
 
-  return result
-}
+    return result;
+};
 
 export const testPassWhile: Test = {
-  ts: `
+    ts: `
 while (true);
   `,
-  expected: `
+    expected: `
 while true:
   pass
   `,
-}
+};
 
 export const testWhileConditionPostIncrement: Test = {
-  ts: `
+    ts: `
 let x = 0
 while (x++ < 10) {
   print(x)
 }
   `,
-  expected: `
+    expected: `
 var x: int = 0
 while x < 10:
   x += 1
   print(x)
 `,
-}
+};
 
 export const testWhileConditionPass: Test = {
-  ts: `
+    ts: `
 let x = 0
 while (x++ < 10) { }
   `,
-  expected: `
+    expected: `
 var x: int = 0
 while x < 10:
   x += 1
 `,
-}
+};
 
 export const testWhileConditionPreIncrement: Test = {
-  ts: `
+    ts: `
 let x = 0
 while (++x < 10) {
   print(x)
 }
   `,
-  expected: `
+    expected: `
 var x: int = 0
 x += 1
 while x < 10:
   print(x)
   x += 1
 `,
-}
+};

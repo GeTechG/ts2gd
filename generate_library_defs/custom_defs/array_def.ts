@@ -239,4 +239,4 @@ interface Array<T> {
   [n: number]: T;
   [Symbol.iterator](): IterableIterator<T>;
 }
-`
+`;

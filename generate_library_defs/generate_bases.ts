@@ -1,11 +1,11 @@
-import fs from "fs"
-import path from "path"
+import fs from "fs";
+import path from "path";
 
-import { Paths } from "../project"
+import { Paths } from "../project";
 
-import { ArrayDefinition } from "./custom_defs/array_def"
-import { DictionaryDefinition } from "./custom_defs/dictionary_def"
-import { PackedSceneDef } from "./custom_defs/packed_scene_def"
+import { ArrayDefinition } from "./custom_defs/array_def";
+import { DictionaryDefinition } from "./custom_defs/dictionary_def";
+import { PackedSceneDef } from "./custom_defs/packed_scene_def";
 
 export const baseFileContent = `
 
@@ -264,23 +264,23 @@ declare class Signal<T extends (...args: any[]) => any = () => void> {
   /** Emit this signal. */
   emit(...args: Parameters<T>): void;
 }
-`
+`;
 
 export default function writeBaseDefinitions(paths: Paths) {
-  fs.writeFileSync(
-    path.join(paths.staticGodotDefsPath, "@base.d.ts"),
-    baseFileContent
-  )
+    fs.writeFileSync(
+        path.join(paths.staticGodotDefsPath, "@base.d.ts"),
+        baseFileContent,
+    );
 }
 
 export function baseContentForTests() {
-  return `
+    return `
 ${fs.readFileSync(
-  path.join(process.cwd(), "_godot_defs", "static", "Vector2.d.ts")
+    path.join(process.cwd(), "_godot_defs", "static", "Vector2.d.ts"),
 )}
 ${fs.readFileSync(
-  path.join(process.cwd(), "_godot_defs", "static", "Vector3.d.ts")
+    path.join(process.cwd(), "_godot_defs", "static", "Vector3.d.ts"),
 )}
 ${baseFileContent}
-`
+`;
 }

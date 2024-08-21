@@ -271,4 +271,4 @@ entries(): [K, V][];
 }
 
 declare const todict: <K extends string | number | symbol, V>(obj: { [key in K]: V }) => Dictionary<K, V>;
-`
+`;

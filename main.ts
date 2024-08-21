@@ -150,188 +150,192 @@
 
 // [x]: a better signal API would just be this.signal.connect(() => { stuff }) - we should get rid of all the other stuff.
 
-import * as process from "process"
+import * as process from "process";
 
-import ts from "typescript"
-import chalk from "chalk"
+import ts from "typescript";
+import chalk from "chalk";
 
-import { ParsedArgs, parseArgs, printHelp } from "./parse_args"
-import { Paths } from "./project/paths"
-import { checkVersionAsync, getInstalledVersion } from "./check_version"
-import { makeTsGdProject } from "./project/project"
+import { ParsedArgs, parseArgs, printHelp } from "./parse_args";
+import { Paths } from "./project/paths";
+import { checkVersionAsync, getInstalledVersion } from "./check_version";
+import { makeTsGdProject } from "./project/project";
 
 const setup = (tsgdJson: Paths) => {
-  const formatHost: ts.FormatDiagnosticsHost = {
-    getCanonicalFileName: (path: string) => path,
-    getCurrentDirectory: ts.sys.getCurrentDirectory,
-    getNewLine: () => ts.sys.newLine,
-  }
+    const formatHost: ts.FormatDiagnosticsHost = {
+        getCanonicalFileName: (path: string) => path,
+        getCurrentDirectory: ts.sys.getCurrentDirectory,
+        getNewLine: () => ts.sys.newLine,
+    };
 
-  let tsUpdateResolve!: (value: void | PromiseLike<void>) => void
+    let tsUpdateResolve!: (value: void | PromiseLike<void>) => void;
 
-  const tsInitializationFinished = new Promise<void>((resolve) => {
-    tsUpdateResolve = resolve
-  })
+    const tsInitializationFinished = new Promise<void>((resolve) => {
+        tsUpdateResolve = resolve;
+    });
 
-  let watchProgram: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>
+    let watchProgram: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>;
 
-  function reportDiagnostic(diagnostic: ts.Diagnostic) {
-    const errorMessage = ts.flattenDiagnosticMessageText(
-      diagnostic.messageText,
-      formatHost.getNewLine()
-    )
+    function reportDiagnostic(diagnostic: ts.Diagnostic) {
+        const errorMessage = ts.flattenDiagnosticMessageText(
+            diagnostic.messageText,
+            formatHost.getNewLine(),
+        );
 
-    // Quiet the errors which are not really errors.
+        // Quiet the errors which are not really errors.
 
-    if (
-      errorMessage.match(
-        /Operator '[+\-*/]=?' cannot be applied to types 'Vector[23]' and '(Vector[23]|number)'/
-      )
-    ) {
-      return
+        if (
+            errorMessage.match(
+                /Operator '[+\-*/]=?' cannot be applied to types 'Vector[23]' and '(Vector[23]|number)'/,
+            )
+        ) {
+            return;
+        }
+
+        if (
+            errorMessage.match(
+                /The left-hand side of an 'in' expression must be of type/,
+            )
+        ) {
+            return;
+        }
     }
 
-    if (
-      errorMessage.match(
-        /The left-hand side of an 'in' expression must be of type/
-      )
-    ) {
-      return
-    }
-  }
+    const reportWatchStatusChanged = (
+        diagnostic: ts.Diagnostic,
+        newLine: string,
+    ) => {};
 
-  const reportWatchStatusChanged = (
-    diagnostic: ts.Diagnostic,
-    newLine: string
-  ) => {}
+    // Wait until we've definitely loaded in the definitions
+    let interval = setInterval(() => {
+        let allSourceFiles =
+            watchProgram
+                ?.getProgram()
+                .getSourceFiles()
+                .map((x) => x.fileName) ?? [];
 
-  // Wait until we've definitely loaded in the definitions
-  let interval = setInterval(() => {
-    let allSourceFiles =
-      watchProgram
-        ?.getProgram()
-        .getSourceFiles()
-        .map((x) => x.fileName) ?? []
+        if (allSourceFiles.find((name) => name.includes("@globals.d.ts"))) {
+            clearInterval(interval);
+            tsUpdateResolve();
+        }
+    }, 100);
 
-    if (allSourceFiles.find((name) => name.includes("@globals.d.ts"))) {
-      clearInterval(interval)
-      tsUpdateResolve()
-    }
-  }, 100)
+    const host = ts.createWatchCompilerHost(
+        tsgdJson.tsconfigPath,
+        {},
+        ts.sys,
+        ts.createEmitAndSemanticDiagnosticsBuilderProgram,
+        reportDiagnostic,
+        reportWatchStatusChanged,
+    );
+    watchProgram = ts.createWatchProgram(host);
+    const configFile = ts.readJsonConfigFile(
+        tsgdJson.tsconfigPath,
+        ts.sys.readFile,
+    );
+    const opt = ts.parseConfigFileTextToJson(
+        tsgdJson.tsconfigPath,
+        configFile.text,
+    );
+    opt.config.useCaseSensitiveFileNames = false;
 
-  const host = ts.createWatchCompilerHost(
-    tsgdJson.tsconfigPath,
-    {},
-    ts.sys,
-    ts.createEmitAndSemanticDiagnosticsBuilderProgram,
-    reportDiagnostic,
-    reportWatchStatusChanged
-  )
-  watchProgram = ts.createWatchProgram(host)
-  const configFile = ts.readJsonConfigFile(
-    tsgdJson.tsconfigPath,
-    ts.sys.readFile
-  )
-  const opt = ts.parseConfigFileTextToJson(
-    tsgdJson.tsconfigPath,
-    configFile.text
-  )
-  opt.config.useCaseSensitiveFileNames = false
+    return {
+        watchProgram,
+        tsgdJson,
+        reportWatchStatusChanged,
+        tsInitializationFinished,
+    };
+};
 
-  return {
-    watchProgram,
-    tsgdJson,
-    reportWatchStatusChanged,
-    tsInitializationFinished,
-  }
-}
-
-const version = getInstalledVersion()
+const version = getInstalledVersion();
 
 export const showLoadingMessage = (
-  msg: string,
-  args: ParsedArgs,
-  done = false
+    msg: string,
+    args: ParsedArgs,
+    done = false,
 ) => {
-  if (!args.debug) console.clear()
-  console.info(
-    `${chalk.whiteBright("ts2gd v" + version)}: ${msg + (done ? "" : "...")}`
-  )
-}
+    if (!args.debug) console.clear();
+    console.info(
+        `${chalk.whiteBright("ts2gd v" + version)}: ${
+            msg + (done ? "" : "...")
+        }`,
+    );
+};
 
 export const main = async (args: ParsedArgs) => {
-  const start = new Date().getTime()
+    const start = new Date().getTime();
 
-  const tsgdJson = new Paths(args)
+    const tsgdJson = new Paths(args);
 
-  showLoadingMessage("Initializing TypeScript", args)
-  const { watchProgram, tsInitializationFinished } = setup(tsgdJson)
+    showLoadingMessage("Initializing TypeScript", args);
+    const { watchProgram, tsInitializationFinished } = setup(tsgdJson);
 
-  showLoadingMessage("Scanning project", args)
-  let project = await makeTsGdProject(tsgdJson, watchProgram, args)
+    showLoadingMessage("Scanning project", args);
+    let project = await makeTsGdProject(tsgdJson, watchProgram, args);
 
-  if (args.buildLibraries || project.shouldBuildLibraryDefinitions(args)) {
-    showLoadingMessage("Building definition files", args)
-    await project.buildLibraryDefinitions()
-  }
-
-  await project.buildDynamicDefinitions()
-
-  // This resolves a race condition where TS would not be aware of all the files
-  // we just saved in buildAllDefinitions().
-  showLoadingMessage("Waiting for TypeScript to finish", args)
-  await tsInitializationFinished
-
-  if (!project.validateAutoloads()) {
-    process.exit(1)
-  }
-
-  showLoadingMessage("Compiling all source files", args)
-  let hadErrors = true
-  try {
-    hadErrors = !(await project.compileAllSourceFiles())
-  } catch (e) {
-    // if in watch mode, try continuing
-    // in build mode, exit early with the error
-    if (args.buildOnly) {
-      throw e
+    if (args.buildLibraries || project.shouldBuildLibraryDefinitions(args)) {
+        showLoadingMessage("Building definition files", args);
+        await project.buildLibraryDefinitions();
     }
-  }
 
-  if (args.buildOnly) {
-    showLoadingMessage(
-      `Build complete in ${(new Date().getTime() - start) / 1000 + "s"}`,
-      args,
-      true
-    )
+    await project.buildDynamicDefinitions();
 
-    process.exit(hadErrors ? -1 : 0)
-  } else {
-    showLoadingMessage(
-      `Startup complete in ${(new Date().getTime() - start) / 1000 + "s"}`,
-      args,
-      true
-    )
-  }
-}
+    // This resolves a race condition where TS would not be aware of all the files
+    // we just saved in buildAllDefinitions().
+    showLoadingMessage("Waiting for TypeScript to finish", args);
+    await tsInitializationFinished;
+
+    if (!project.validateAutoloads()) {
+        process.exit(1);
+    }
+
+    showLoadingMessage("Compiling all source files", args);
+    let hadErrors = true;
+    try {
+        hadErrors = !(await project.compileAllSourceFiles());
+    } catch (e) {
+        // if in watch mode, try continuing
+        // in build mode, exit early with the error
+        if (args.buildOnly) {
+            throw e;
+        }
+    }
+
+    if (args.buildOnly) {
+        showLoadingMessage(
+            `Build complete in ${(new Date().getTime() - start) / 1000 + "s"}`,
+            args,
+            true,
+        );
+
+        process.exit(hadErrors ? -1 : 0);
+    } else {
+        showLoadingMessage(
+            `Startup complete in ${
+                (new Date().getTime() - start) / 1000 + "s"
+            }`,
+            args,
+            true,
+        );
+    }
+};
 
 if (!process.argv[1].includes("test")) {
-  const args = parseArgs()
+    const args = parseArgs();
 
-  // checkVersionAsync()
+    // checkVersionAsync()
 
-  if (args.help) {
-    printHelp()
-  } else if (args.printVersion) {
-    // Nothing to do; we already printed the version.
-  } else {
-    void (async () => {
-      try {
-        await main(args)
-      } catch (e) {
-        console.error(e)
-        process.exit(1)
-      }
-    })()
-  }
+    if (args.help) {
+        printHelp();
+    } else if (args.printVersion) {
+        // Nothing to do; we already printed the version.
+    } else {
+        void (async () => {
+            try {
+                await main(args);
+            } catch (e) {
+                console.error(e);
+                process.exit(1);
+            }
+        })();
+    }
 }

@@ -1,10 +1,10 @@
-import fs from "fs"
-import path from "path"
+import fs from "fs";
+import path from "path";
 
-import { AssetGodotScene, GodotNode } from "../assets/asset_godot_scene"
-import { getCommonElements } from "../../ts_utils"
-import TsGdProject from "../project"
-import { AssetSourceFile } from "../assets/asset_source_file"
+import { AssetGodotScene, GodotNode } from "../assets/asset_godot_scene";
+import { getCommonElements } from "../../ts_utils";
+import TsGdProject from "../project";
+import { AssetSourceFile } from "../assets/asset_source_file";
 
 /**
  * Returns the paths to all children below this node, including grandchildren
@@ -14,274 +14,276 @@ import { AssetSourceFile } from "../assets/asset_source_file"
  * @param prefix
  */
 export const getAllChildPaths = (
-  node: GodotNode,
-  ignoreNextName = false,
-  prefix = ""
+    node: GodotNode,
+    ignoreNextName = false,
+    prefix = "",
 ): { path: string; node: GodotNode }[] => {
-  let myPath = ""
+    let myPath = "";
 
-  if (ignoreNextName) {
-    myPath = prefix
-  } else {
-    myPath = (prefix ? prefix + "/" : "") + node.name
-  }
+    if (ignoreNextName) {
+        myPath = prefix;
+    } else {
+        myPath = (prefix ? prefix + "/" : "") + node.name;
+    }
 
-  let result: { path: string; node: GodotNode }[] = []
+    let result: { path: string; node: GodotNode }[] = [];
 
-  if (myPath !== "") {
-    result.push({ path: myPath, node })
-  }
+    if (myPath !== "") {
+        result.push({ path: myPath, node });
+    }
 
-  for (const child of node.children()) {
-    result = [...result, ...getAllChildPaths(child, false, myPath)]
-  }
+    for (const child of node.children()) {
+        result = [...result, ...getAllChildPaths(child, false, myPath)];
+    }
 
-  const inst = node.instance()
+    const inst = node.instance();
 
-  if (inst instanceof AssetGodotScene) {
-    result = [...result, ...getAllChildPaths(inst.rootNode, true, myPath)]
-  }
+    if (inst instanceof AssetGodotScene) {
+        result = [...result, ...getAllChildPaths(inst.rootNode, true, myPath)];
+    }
 
-  return result
-}
+    return result;
+};
 
 export default function buildNodePathsTypeForScript(
-  script: AssetSourceFile,
-  project: TsGdProject
+    script: AssetSourceFile,
+    project: TsGdProject,
 ): void {
-  // Find all instances of this script in all scenes.
+    // Find all instances of this script in all scenes.
 
-  const nodesWithScript: GodotNode[] = []
+    const nodesWithScript: GodotNode[] = [];
 
-  for (const scene of project.godotScenes()) {
-    for (const node of scene.nodes) {
-      const nodeScript = node.getScript()
-
-      if (nodeScript && nodeScript.resPath === script.resPath) {
-        const instance = node.instance()
-        let isValid = false
-
-        if (!instance) {
-          isValid = true
-        } else {
-          // We want to skip instances of this scene, because instances are not
-          // stored with their children in .tscn files.
-          isValid = instance.resPath !== nodeScript.resPath
-        }
-
-        if (isValid) {
-          nodesWithScript.push(node)
-        }
-      }
-    }
-  }
-
-  // For every potential relative path, validate that it can be found
-  // in each instantiated node.
-
-  const className = script.exportedTsClassName()
-  const extendedClassName = script.extendedClassName()
-
-  if (!className) {
-    return
-  }
-
-  let commonRelativePaths: {
-    path: string
-    node: GodotNode
-  }[] = []
-
-  let references: (
-    | { use: string; children: string[]; type: "script" }
-    | { use: string; type: "instance" }
-    | { type: "autoload" }
-  )[] = []
-
-  if (nodesWithScript.length === 0) {
-    if (script.isAutoload()) {
-      // Special logic for autoload classes.
-
-      const rootScene = project.mainScene
-      commonRelativePaths = getAllChildPaths(rootScene.rootNode)
-      references = [{ type: "autoload" }]
-      commonRelativePaths = commonRelativePaths.map(({ path, node }) => ({
-        path: `/root/${path}`,
-        node,
-      }))
-    } else {
-      // This class is never instantiated as a node.
-
-      commonRelativePaths = []
-      references = []
-
-      // TODO: Maybe flag it if it's also never used as a class.
-      // Currently, this is just noise.
-
-      // console.error("Unused class:", className)
-    }
-  } else {
-    const relativePathsPerNode = nodesWithScript.map((node) =>
-      getAllChildPaths(node, true)
-    )
-
-    references = nodesWithScript.map((node) => ({
-      type: "script",
-      use: node.scene.resPath + ":" + node.scenePath(),
-      children: getAllChildPaths(node).map((o) => o.path),
-    }))
-
-    commonRelativePaths = getCommonElements(
-      relativePathsPerNode,
-      (a, b) => a.path === b.path
-    )
-
-    const instancedScene = nodesWithScript.find((node) => node.isRoot)?.scene
-
-    if (instancedScene) {
-      const allScenes = project.godotScenes()
-      let scenesThatContainInstance: AssetGodotScene[] = []
-
-      let moreReferences: {
-        type: "instance"
-        use: string
-      }[] = []
-
-      for (const scene of allScenes) {
+    for (const scene of project.godotScenes()) {
         for (const node of scene.nodes) {
-          if (node.instance() === instancedScene) {
-            moreReferences.push({
-              type: "instance",
-              use: scene.resPath + ":" + node.scenePath(),
-            })
-            scenesThatContainInstance.push(scene)
-          }
+            const nodeScript = node.getScript();
+
+            if (nodeScript && nodeScript.resPath === script.resPath) {
+                const instance = node.instance();
+                let isValid = false;
+
+                if (!instance) {
+                    isValid = true;
+                } else {
+                    // We want to skip instances of this scene, because instances are not
+                    // stored with their children in .tscn files.
+                    isValid = instance.resPath !== nodeScript.resPath;
+                }
+
+                if (isValid) {
+                    nodesWithScript.push(node);
+                }
+            }
         }
-      }
-
-      references = [...references, ...moreReferences]
-
-      scenesThatContainInstance = [...new Set(scenesThatContainInstance)]
-
-      const allScenePaths = scenesThatContainInstance.map((scene) =>
-        getAllChildPaths(scene.rootNode)
-      )
-
-      const commonScenePaths = getCommonElements(
-        allScenePaths,
-        (a, b) => a.path === b.path
-      )
-
-      commonRelativePaths = [
-        ...commonRelativePaths,
-        ...commonScenePaths.map((obj) => ({
-          node: obj.node,
-          path: "/root/" + obj.path,
-        })),
-      ]
     }
-  }
 
-  // Normal case
+    // For every potential relative path, validate that it can be found
+    // in each instantiated node.
 
-  const pathToImport: { [key: string]: string } = {}
+    const className = script.exportedTsClassName();
+    const extendedClassName = script.extendedClassName();
 
-  for (const { path, node } of commonRelativePaths) {
-    const script = node.getScript()
+    if (!className) {
+        return;
+    }
 
-    if (script) {
-      pathToImport[path] = `import("${script.fsPath.slice(
-        0,
-        -".ts".length
-      )}").${script.exportedTsClassName()}`
+    let commonRelativePaths: {
+        path: string;
+        node: GodotNode;
+    }[] = [];
+
+    let references: (
+        | { use: string; children: string[]; type: "script" }
+        | { use: string; type: "instance" }
+        | { type: "autoload" }
+    )[] = [];
+
+    if (nodesWithScript.length === 0) {
+        if (script.isAutoload()) {
+            // Special logic for autoload classes.
+
+            const rootScene = project.mainScene;
+            commonRelativePaths = getAllChildPaths(rootScene.rootNode);
+            references = [{ type: "autoload" }];
+            commonRelativePaths = commonRelativePaths.map(({ path, node }) => ({
+                path: `/root/${path}`,
+                node,
+            }));
+        } else {
+            // This class is never instantiated as a node.
+
+            commonRelativePaths = [];
+            references = [];
+
+            // TODO: Maybe flag it if it's also never used as a class.
+            // Currently, this is just noise.
+
+            // console.error("Unused class:", className)
+        }
     } else {
-      pathToImport[path] = node.tsType()
-    }
-  }
+        const relativePathsPerNode = nodesWithScript.map((node) =>
+            getAllChildPaths(node, true),
+        );
 
-  type RecursivePath = {
-    type: string
-    name: string
-    children: { [name: string]: RecursivePath }
-  }
+        references = nodesWithScript.map((node) => ({
+            type: "script",
+            use: node.scene.resPath + ":" + node.scenePath(),
+            children: getAllChildPaths(node).map((o) => o.path),
+        }));
 
-  const obj: RecursivePath = {
-    type: "",
-    name: "",
-    children: {},
-  }
+        commonRelativePaths = getCommonElements(
+            relativePathsPerNode,
+            (a, b) => a.path === b.path,
+        );
 
-  for (const { path, node } of commonRelativePaths) {
-    if (path.startsWith("/")) {
-      continue
-    }
+        const instancedScene = nodesWithScript.find(
+            (node) => node.isRoot,
+        )?.scene;
 
-    const names = path.split("/")
-    let cur = obj
+        if (instancedScene) {
+            const allScenes = project.godotScenes();
+            let scenesThatContainInstance: AssetGodotScene[] = [];
 
-    for (const name of names) {
-      if (!cur.children[name]) {
-        cur.children[name] = {
-          type: "",
-          name: name,
-          children: {},
+            let moreReferences: {
+                type: "instance";
+                use: string;
+            }[] = [];
+
+            for (const scene of allScenes) {
+                for (const node of scene.nodes) {
+                    if (node.instance() === instancedScene) {
+                        moreReferences.push({
+                            type: "instance",
+                            use: scene.resPath + ":" + node.scenePath(),
+                        });
+                        scenesThatContainInstance.push(scene);
+                    }
+                }
+            }
+
+            references = [...references, ...moreReferences];
+
+            scenesThatContainInstance = [...new Set(scenesThatContainInstance)];
+
+            const allScenePaths = scenesThatContainInstance.map((scene) =>
+                getAllChildPaths(scene.rootNode),
+            );
+
+            const commonScenePaths = getCommonElements(
+                allScenePaths,
+                (a, b) => a.path === b.path,
+            );
+
+            commonRelativePaths = [
+                ...commonRelativePaths,
+                ...commonScenePaths.map((obj) => ({
+                    node: obj.node,
+                    path: "/root/" + obj.path,
+                })),
+            ];
         }
-      }
-
-      cur = cur.children[name]
     }
 
-    cur.type = pathToImport[path]
-    cur.name = names[names.length - 1]
-  }
+    // Normal case
 
-  function process(obj: RecursivePath, indent = "") {
-    let result = ""
+    const pathToImport: { [key: string]: string } = {};
 
-    result += indent + obj.name + ": " + obj.type + " & {\n"
+    for (const { path, node } of commonRelativePaths) {
+        const script = node.getScript();
 
-    for (const childName of Object.keys(obj.children)) {
-      result += process(obj.children[childName], indent + "  ")
+        if (script) {
+            pathToImport[path] = `import("${script.fsPath.slice(
+                0,
+                -".ts".length,
+            )}").${script.exportedTsClassName()}`;
+        } else {
+            pathToImport[path] = node.tsType();
+        }
     }
 
-    result += indent + "}\n"
+    type RecursivePath = {
+        type: string;
+        name: string;
+        children: { [name: string]: RecursivePath };
+    };
 
-    return result
-  }
+    const obj: RecursivePath = {
+        type: "",
+        name: "",
+        children: {},
+    };
 
-  const directNodeAccessPaths = Object.values(obj.children)
-    .map((c) => process(c))
-    .join("\n")
+    for (const { path, node } of commonRelativePaths) {
+        if (path.startsWith("/")) {
+            continue;
+        }
 
-  let result = `${
-    references.length > 0
-      ? `// Uses of "${script.resPath}": \n`
-      : `// No uses of "${script.resPath}" found.\n`
-  }
+        const names = path.split("/");
+        let cur = obj;
+
+        for (const name of names) {
+            if (!cur.children[name]) {
+                cur.children[name] = {
+                    type: "",
+                    name: name,
+                    children: {},
+                };
+            }
+
+            cur = cur.children[name];
+        }
+
+        cur.type = pathToImport[path];
+        cur.name = names[names.length - 1];
+    }
+
+    function process(obj: RecursivePath, indent = "") {
+        let result = "";
+
+        result += indent + obj.name + ": " + obj.type + " & {\n";
+
+        for (const childName of Object.keys(obj.children)) {
+            result += process(obj.children[childName], indent + "  ");
+        }
+
+        result += indent + "}\n";
+
+        return result;
+    }
+
+    const directNodeAccessPaths = Object.values(obj.children)
+        .map((c) => process(c))
+        .join("\n");
+
+    let result = `${
+        references.length > 0
+            ? `// Uses of "${script.resPath}": \n`
+            : `// No uses of "${script.resPath}" found.\n`
+    }
 ${references
-  .map((ref) => {
-    if (ref.type === "autoload") {
-      return "// This is an autoload class\n"
-    } else if (ref.type === "script") {
-      return (
-        "// As a script:\n" +
-        "//   " +
-        ref.use +
-        "\n" +
-        ref.children.map((c) => "//     - " + c + " \n").join("")
-      )
-    } else if (ref.type === "instance") {
-      return "// As an instance:\n" + "//  " + ref.use + "\n"
-    }
-  })
-  .join("")}
+    .map((ref) => {
+        if (ref.type === "autoload") {
+            return "// This is an autoload class\n";
+        } else if (ref.type === "script") {
+            return (
+                "// As a script:\n" +
+                "//   " +
+                ref.use +
+                "\n" +
+                ref.children.map((c) => "//     - " + c + " \n").join("")
+            );
+        } else if (ref.type === "instance") {
+            return "// As an instance:\n" + "//  " + ref.use + "\n";
+        }
+    })
+    .join("")}
 declare type NodePathToType${className} = {
 ${Object.entries(pathToImport)
-  .map(([path, importStr]) => `  "${path}": ${importStr},`)
-  .join("\n")}
+    .map(([path, importStr]) => `  "${path}": ${importStr},`)
+    .join("\n")}
 }    
-`
+`;
 
-  result += `
+    result += `
   
 import { ${className} } from '${script.tsRelativePath.slice(0, -".ts".length)}'
 
@@ -321,12 +323,12 @@ declare module '${script.tsRelativePath.slice(0, -".ts".length)}' {
     export { _new as new };
   }
 }
-`
+`;
 
-  const destPath = path.join(
-    project.paths.dynamicGodotDefsPath,
-    `@node_paths_${script.getGodotClassName()}.d.ts`
-  )
+    const destPath = path.join(
+        project.paths.dynamicGodotDefsPath,
+        `@node_paths_${script.getGodotClassName()}.d.ts`,
+    );
 
-  fs.writeFileSync(destPath, result)
+    fs.writeFileSync(destPath, result);
 }

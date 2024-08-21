@@ -1,43 +1,43 @@
-import ts from "typescript"
+import ts from "typescript";
 
-import { ParseState, combine, ParseNodeType } from "../parse_node"
-import { Test } from "../tests/test"
+import { ParseState, combine, ParseNodeType } from "../parse_node";
+import { Test } from "../tests/test";
 
 export const parseYieldExpression = (
-  node: ts.YieldExpression,
-  props: ParseState
+    node: ts.YieldExpression,
+    props: ParseState,
 ): ParseNodeType => {
-  return combine({
-    parent: node,
-    nodes: node.expression,
-    props,
-    parsedStrings: (expr) => {
-      if (expr.includes(".$")) {
-        return "yield(" + expr.replace(".$", ', "') + '")'
-      } else {
-        return `yield ${expr}`
-      }
-    },
-  })
-}
+    return combine({
+        parent: node,
+        nodes: node.expression,
+        props,
+        parsedStrings: (expr) => {
+            if (expr.includes(".$")) {
+                return "yield(" + expr.replace(".$", ', "') + '")';
+            } else {
+                return `yield ${expr}`;
+            }
+        },
+    });
+};
 
 export const testYieldSignal: Test = {
-  ts: `
+    ts: `
 export class Test {
   *test(): void {
     yield this.get_tree().$idle_frame
   }
 }
   `,
-  expected: `
+    expected: `
 class_name Test
 func test():
   yield(self.get_tree(), "idle_frame")
 `,
-}
+};
 
 export const testYieldSignal2: Test = {
-  ts: `
+    ts: `
 export class Test {
   $mysignal: Signal
   *test(): void {
@@ -45,10 +45,10 @@ export class Test {
   }
 }
   `,
-  expected: `
+    expected: `
 class_name Test
 signal mysignal
 func test():
   yield(self, "mysignal")
 `,
-}
+};

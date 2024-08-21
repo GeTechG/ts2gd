@@ -1,1 +1,1 @@
-export * from "./asset_utils"
+export * from "./asset_utils";

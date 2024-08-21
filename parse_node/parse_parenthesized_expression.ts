@@ -1,35 +1,35 @@
-import ts, { SyntaxKind } from "typescript"
+import ts, { SyntaxKind } from "typescript";
 
-import { ParseState, combine, ParseNodeType } from "../parse_node"
-import { Test } from "../tests/test"
+import { ParseState, combine, ParseNodeType } from "../parse_node";
+import { Test } from "../tests/test";
 
 export const parseParenthesizedExpression = (
-  node: ts.ParenthesizedExpression,
-  props: ParseState
+    node: ts.ParenthesizedExpression,
+    props: ParseState,
 ): ParseNodeType => {
-  if (node.expression.kind === SyntaxKind.AsExpression) {
-    return combine({
-      parent: node,
-      nodes: node.expression,
-      props,
-      parsedStrings: (expr) => `${expr}`,
-    })
-  }
+    if (node.expression.kind === SyntaxKind.AsExpression) {
+        return combine({
+            parent: node,
+            nodes: node.expression,
+            props,
+            parsedStrings: (expr) => `${expr}`,
+        });
+    }
 
-  return combine({
-    parent: node,
-    nodes: node.expression,
-    props,
-    parsedStrings: (expr) => `(${expr})`,
-  })
-}
+    return combine({
+        parent: node,
+        nodes: node.expression,
+        props,
+        parsedStrings: (expr) => `(${expr})`,
+    });
+};
 
 // Specifically, (my_function)() is invalid Godot syntax.
 export const testNoParensThisCausesAGodotBug: Test = {
-  ts: `
+    ts: `
 (foo as any)()
   `,
-  expected: `
+    expected: `
 foo()
   `,
-}
+};

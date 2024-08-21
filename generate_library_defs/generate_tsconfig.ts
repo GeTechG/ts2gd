@@ -14,4 +14,4 @@ export const defaultTsconfig = `
     "forceConsistentCasingInFileNames": true
   }
 }
-`
+`;

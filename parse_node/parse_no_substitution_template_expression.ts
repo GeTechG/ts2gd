@@ -1,31 +1,31 @@
-import ts from "typescript"
+import ts from "typescript";
 
-import { ParseNodeType, ParseState, combine } from "../parse_node"
-import { Test } from "../tests/test"
+import { ParseNodeType, ParseState, combine } from "../parse_node";
+import { Test } from "../tests/test";
 
 export const parseNoSubstitutionTemplateLiteral = (
-  node: ts.NoSubstitutionTemplateLiteral,
-  props: ParseState
+    node: ts.NoSubstitutionTemplateLiteral,
+    props: ParseState,
 ): ParseNodeType => {
-  const sanitizeText = (text: string) => {
-    return text.replaceAll("\n", "\\n")
-  }
+    const sanitizeText = (text: string) => {
+        return text.replaceAll("\n", "\\n");
+    };
 
-  return combine({
-    parent: node,
-    nodes: [],
-    props,
-    parsedStrings: () => `"${sanitizeText(node.text)}"`,
-  })
-}
+    return combine({
+        parent: node,
+        nodes: [],
+        props,
+        parsedStrings: () => `"${sanitizeText(node.text)}"`,
+    });
+};
 
 export const testSanitizeText: Test = {
-  ts: `
+    ts: `
 let foo = \`
 woo
 \`
   `,
-  expected: `
+    expected: `
 var _foo = "\\nwoo\\n"
 `,
-}
+};

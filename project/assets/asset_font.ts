@@ -1,24 +1,24 @@
-import TsGdProject from "../project"
+import TsGdProject from "../project";
 
-import { BaseAsset } from "./base_asset"
+import { BaseAsset } from "./base_asset";
 
 export class AssetFont extends BaseAsset {
-  resPath: string
-  fsPath: string
-  project: TsGdProject
+    resPath: string;
+    fsPath: string;
+    project: TsGdProject;
 
-  static extensions() {
-    return [".ttf"]
-  }
+    static extensions() {
+        return [".ttf"];
+    }
 
-  constructor(path: string, project: TsGdProject) {
-    super()
-    this.fsPath = path
-    this.resPath = project.paths.fsPathToResPath(this.fsPath)
-    this.project = project
-  }
+    constructor(path: string, project: TsGdProject) {
+        super();
+        this.fsPath = path;
+        this.resPath = project.paths.fsPathToResPath(this.fsPath);
+        this.project = project;
+    }
 
-  tsType(): string {
-    return "DynamicFontData"
-  }
+    tsType(): string {
+        return "DynamicFontData";
+    }
 }

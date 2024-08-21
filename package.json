@@ -1,60 +1,61 @@
 {
-  "name": "ts2gd",
-  "version": "0.0.36",
-  "description": "TypeScript to GDScript transpiler.",
-  "main": "js/main.js",
-  "scripts": {
-    "publish-local": "npm run tsc && npm link",
-    "auto-publish": "npm run tsc && git add . && git commit -m 'include generated JS' && npm version patch && npm publish",
-    "tsc": "tsc",
-    "dev": "ts-node-dev --respawn main.ts",
-    "test": "ts-node-dev --respawn --clear tests/test.ts",
-    "build-ci": "tsc",
-    "test-ci": "node js/tests/test.js",
-    "project-test": "ts-node-dev --respawn --clear tests/project_tests.ts",
-    "prepare": "husky install",
-    "lint-staged": "lint-staged",
-    "generate-defs": "ts-node main.ts --buildLibraries --buildOnly mockProject/ts2gd.json"
-  },
-  "prepublish": "tsc",
-  "bin": {
-    "ts2gd": "bin/index.js"
-  },
-  "files": [
-    "_godot_defs",
-    "bin",
-    "js"
-  ],
-  "author": "johnfn",
-  "license": "MIT",
-  "lint-staged": {
-    "*.{ts,json}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  },
-  "dependencies": {
-    "chalk": "^4.1.2",
-    "chokidar": "^3.5.2",
-    "pkginfo": "^0.4.1",
-    "tsutils": "^3.21.0",
-    "xml2js": "^0.6.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.4.2",
-    "@types/pkginfo": "^0.4.3",
-    "@types/xml2js": "^0.4.14",
-    "@typescript-eslint/eslint-plugin": "^8.2.0",
-    "@typescript-eslint/parser": "^8.2.0",
-    "anymatch": "^3.1.3",
-    "eslint": "^8.5.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.1.2",
-    "prettier": "^2.5.1",
-    "ts-node": "^10.4.0",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^5.5.4"
-  }
+    "name": "ts2gd",
+    "version": "0.0.36",
+    "description": "TypeScript to GDScript transpiler.",
+    "main": "js/main.js",
+    "scripts": {
+        "publish-local": "npm run tsc && npm link",
+        "auto-publish": "npm run tsc && git add . && git commit -m 'include generated JS' && npm version patch && npm publish",
+        "tsc": "tsc",
+        "dev": "ts-node-dev --respawn main.ts",
+        "test": "ts-node-dev --respawn --clear tests/test.ts",
+        "build-ci": "tsc",
+        "test-ci": "node js/tests/test.js",
+        "project-test": "ts-node-dev --respawn --clear tests/project_tests.ts",
+        "prepare": "husky install",
+        "lint-staged": "lint-staged",
+        "generate-defs": "ts-node main.ts --buildLibraries --buildOnly mockProject/ts2gd.json"
+    },
+    "prepublish": "tsc",
+    "bin": {
+        "ts2gd": "bin/index.js"
+    },
+    "files": [
+        "_godot_defs",
+        "bin",
+        "js"
+    ],
+    "author": "johnfn",
+    "license": "MIT",
+    "lint-staged": {
+        "*.{ts,json}": [
+            "eslint --fix",
+            "prettier --write"
+        ]
+    },
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "chokidar": "^3.5.2",
+        "pkginfo": "^0.4.1",
+        "tsutils": "^3.21.0",
+        "xml2js": "^0.6.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.9.0",
+        "@types/eslint__js": "^8.42.3",
+        "@types/node": "^22.4.2",
+        "@types/pkginfo": "^0.4.3",
+        "@types/xml2js": "^0.4.14",
+        "anymatch": "^3.1.3",
+        "eslint": "^9.9.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.2.1",
+        "husky": "^7.0.4",
+        "lint-staged": "^12.1.2",
+        "prettier": "^3.3.3",
+        "ts-node": "^10.4.0",
+        "ts-node-dev": "^1.1.8",
+        "typescript": "^5.5.4",
+        "typescript-eslint": "^8.2.0"
+    }
 }

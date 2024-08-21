@@ -1,36 +1,36 @@
-import ts from "typescript"
+import ts from "typescript";
 
-import { ParseState, combine, ParseNodeType } from "../parse_node"
-import { Test } from "../tests/test"
+import { ParseState, combine, ParseNodeType } from "../parse_node";
+import { Test } from "../tests/test";
 
 export const parseNumericLiteral = (
-  node: ts.NumericLiteral,
-  props: ParseState
+    node: ts.NumericLiteral,
+    props: ParseState,
 ): ParseNodeType => {
-  // node.text has some weird edge cases e.g. "6.1" gives "6"!
+    // node.text has some weird edge cases e.g. "6.1" gives "6"!
 
-  return combine({
-    parent: node,
-    nodes: [],
-    props,
-    parsedStrings: () => node.getText(),
-  })
-}
+    return combine({
+        parent: node,
+        nodes: [],
+        props,
+        parsedStrings: () => node.getText(),
+    });
+};
 
 export const testInt: Test = {
-  ts: `
+    ts: `
 let x = 1
   `,
-  expected: `
+    expected: `
 var _x: int = 1
   `,
-}
+};
 
 export const testFloat: Test = {
-  ts: `
+    ts: `
 let x = 1.0
   `,
-  expected: `
+    expected: `
 var _x: float = 1.0
   `,
-}
+};

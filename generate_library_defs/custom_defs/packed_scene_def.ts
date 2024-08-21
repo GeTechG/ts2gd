@@ -72,4 +72,4 @@ declare class PackedScene<T> extends Resource {
   static GEN_EDIT_STATE_MAIN: 2;
   
   }
-`
+`;

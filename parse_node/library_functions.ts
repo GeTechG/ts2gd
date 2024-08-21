@@ -1,26 +1,26 @@
 export type LibraryFunctionName =
-  | "map"
-  | "filter"
-  | "max_by"
-  | "min_by"
-  | "join"
-  | "entries"
-  | "flatten"
-  | "random_element"
-  | "add_vec_lib"
-  | "sub_vec_lib"
-  | "mul_vec_lib"
-  | "div_vec_lib"
+    | "map"
+    | "filter"
+    | "max_by"
+    | "min_by"
+    | "join"
+    | "entries"
+    | "flatten"
+    | "random_element"
+    | "add_vec_lib"
+    | "sub_vec_lib"
+    | "mul_vec_lib"
+    | "div_vec_lib";
 
 export const LibraryFunctions: {
-  [key in LibraryFunctionName]: {
-    name: LibraryFunctionName
-    definition: (name: string) => string
-  }
+    [key in LibraryFunctionName]: {
+        name: LibraryFunctionName;
+        definition: (name: string) => string;
+    };
 } = {
-  entries: {
-    name: "entries",
-    definition: () => `
+    entries: {
+        name: "entries",
+        definition: () => `
 func __entries(dict):
   var result = []
 
@@ -31,43 +31,43 @@ func __entries(dict):
   
   return result
 `,
-  },
+    },
 
-  add_vec_lib: {
-    name: "add_vec_lib",
-    definition: () => `
+    add_vec_lib: {
+        name: "add_vec_lib",
+        definition: () => `
 func add_vec_lib(v1, v2):
   return null if (v1 == null or v2 == null) else v1 + v2
 `,
-  },
+    },
 
-  sub_vec_lib: {
-    name: "sub_vec_lib",
-    definition: () => `
+    sub_vec_lib: {
+        name: "sub_vec_lib",
+        definition: () => `
 func sub_vec_lib(v1, v2):
   return null if (v1 == null or v2 == null) else v1 - v2
 `,
-  },
+    },
 
-  div_vec_lib: {
-    name: "div_vec_lib",
-    definition: () => `
+    div_vec_lib: {
+        name: "div_vec_lib",
+        definition: () => `
 func div_vec_lib(v1, v2):
   return null if (v1 == null or v2 == null) else v1 / v2
 `,
-  },
+    },
 
-  mul_vec_lib: {
-    name: "mul_vec_lib",
-    definition: () => `
+    mul_vec_lib: {
+        name: "mul_vec_lib",
+        definition: () => `
 func mul_vec_lib(v1, v2):
   return null if (v1 == null or v2 == null) else v1 * v2
 `,
-  },
+    },
 
-  map: {
-    name: "map",
-    definition: (name: string) => `
+    map: {
+        name: "map",
+        definition: (name: string) => `
 func ${name}(list, fn):
   var result = []
 
@@ -76,11 +76,11 @@ func ${name}(list, fn):
 
   return result
     `,
-  },
+    },
 
-  flatten: {
-    name: "flatten",
-    definition: (name: string) => `
+    flatten: {
+        name: "flatten",
+        definition: (name: string) => `
 func ${name}(list):
   var result = []
 
@@ -95,11 +95,11 @@ func ${name}(list):
 
   return result
     `,
-  },
+    },
 
-  filter: {
-    name: "filter",
-    definition: (name: string) => `
+    filter: {
+        name: "filter",
+        definition: (name: string) => `
 func ${name}(list, fn):
   var result = []
 
@@ -109,11 +109,11 @@ func ${name}(list, fn):
 
   return result
     `,
-  },
+    },
 
-  max_by: {
-    name: "max_by",
-    definition: (name: string) => `
+    max_by: {
+        name: "max_by",
+        definition: (name: string) => `
 func ${name}(list, fn):
   if len(list) == 0: 
     return null
@@ -131,11 +131,11 @@ func ${name}(list, fn):
 
   return best
     `,
-  },
+    },
 
-  min_by: {
-    name: "min_by",
-    definition: (name: string) => `
+    min_by: {
+        name: "min_by",
+        definition: (name: string) => `
 func ${name}(list, fn):
   if len(list) == 0: 
     return null
@@ -153,11 +153,11 @@ func ${name}(list, fn):
 
   return best
     `,
-  },
+    },
 
-  join: {
-    name: "join",
-    definition: (name: string) => `
+    join: {
+        name: "join",
+        definition: (name: string) => `
 func ${name}(list, join_str):
   var result = ""
 
@@ -169,15 +169,15 @@ func ${name}(list, join_str):
 
   return result
     `,
-  },
+    },
 
-  random_element: {
-    name: "random_element",
-    definition: (name: string) => `
+    random_element: {
+        name: "random_element",
+        definition: (name: string) => `
 func ${name}(list):
   if len(list) == 0: 
     return null
   return list[randi() % len(list)]
     `,
-  },
-}
+    },
+};
