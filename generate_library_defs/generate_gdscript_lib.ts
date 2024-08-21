@@ -14,7 +14,7 @@ export type GodotXMLMethod = {
         qualifiers?: string;
     };
     return?: [{ $: { type: string } }];
-    argument: {
+    param: {
         $: {
             index: string /* e.g. "1" */;
             name: string;
@@ -75,31 +75,24 @@ ${docString}
 get_node_unsafe<T extends Node>(path: NodePathType): T;
 `;
         case "change_scene":
-            return `${docString}
-change_scene(path: SceneName): int`;
+            return `${docString}\n change_scene(path: SceneName): int`;
         case "get_nodes_in_group":
-            return `${docString}
-get_nodes_in_group<T extends keyof Groups>(group: T): Groups[T][]`;
+            return `${docString} \nget_nodes_in_group< T extends keyof Groups>(group: T): Groups[T][]`;
         case "has_group":
-            return `${docString}
-has_group<T extends keyof Groups>(name: T): boolean`;
+            return `${docString} \nhas_group< T extends keyof Groups>(name: T): boolean`;
         case "make_input_local":
-            return "make_input_local<T extends InputEvent>(event: T): T";
+            return "make_input_local< T extends InputEvent>(event: T): T";
         case "emit_signal":
-            return `${docString}
-emit_signal<U extends (...args: Args) => any, T extends Signal<U>, Args extends any[]>(signal: T, ...args: Args): void;`;
+            return `${docString} \nemit_signal< U extends (...args: Args) => any, T extends Signal<U>, Args extends any[]>(signal: T, ...args: Args): void;`;
         default:
             if (isConstructor) {
                 return "";
             }
 
             if (generateAsGlobals) {
-                return `${docString}
-declare const ${name}: (${argumentList}) => ${returnType}
-    `;
+                return `${docString} \ndeclare const ${name}: (${argumentList}) => ${returnType}`;
             } else {
-                return `${docString}
-${isAbstract ? "protected " : ""}${name}(${argumentList}): ${returnType};`;
+                return `${docString} \n${isAbstract ? "protected " : ""}${name}(${argumentList}): ${returnType};`;
             }
     }
 };
@@ -148,7 +141,7 @@ export const parseMethod = (
     const containingClassName = props?.containgClassName ?? undefined;
     const generateAsGlobal = props?.generateAsGlobals ?? false;
     const name = method.$.name;
-    const args = method.argument;
+    const param = method.param;
     const isVarArgs = method.$.qualifiers === "vararg";
     const isConstructor =
         containingClassName !== undefined && name === containingClassName;
@@ -158,11 +151,11 @@ export const parseMethod = (
     );
     let argumentList = "";
 
-    if (args || isVarArgs) {
+    if (param || isVarArgs) {
         if (isVarArgs) {
-            argumentList = "...args: any[]";
+            argumentList = "...param: any[]";
         } else {
-            argumentList = argsToString(args).join(", ");
+            argumentList = argsToString(param).join(", ");
         }
     }
 
@@ -244,9 +237,7 @@ export const generateGdscriptLib = async (path: string) => {
             continue;
         }
 
-        result += `
-${parsedMethod.codegen}
-    `;
+        result += parsedMethod.codegen + "\n";
     }
 
     return result;

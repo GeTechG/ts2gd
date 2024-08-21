@@ -18,6 +18,9 @@ import {
     sanitizeGodotNameForTs,
 } from "./generation_utils";
 
+const GLOBAL_SCOPE_DECLARES =
+    "generate_library_defs/custom_defs/global_score_declares.d.ts";
+
 export class LibraryBuilder {
     constructor(private paths: Paths) {
         fs.mkdirSync(this.paths.staticGodotDefsPath, { recursive: true });
@@ -53,12 +56,7 @@ export class LibraryBuilder {
             }
         }
 
-        const customDeclare = `
-declare const load: <T extends AssetPath>(path: T) => AssetType[T];
-declare const preload: <T extends AssetPath>(path: T) => AssetType[T];
-declare function remotesync(target: any, key: string, descriptor: any): any;
-declare function remote(target: any, key: string, descriptor: any): any;
-`;
+        const customDeclare = fs.readFileSync(GLOBAL_SCOPE_DECLARES, "utf-8");
 
         const propertyDeclarations = properties
             .map((property: any) => {
