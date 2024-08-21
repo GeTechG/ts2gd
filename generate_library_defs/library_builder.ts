@@ -35,10 +35,9 @@ export class LibraryBuilder {
         const singletons: string[] = [];
         const content = fs.readFileSync(path, "utf-8");
         const json = await parseStringPromise(content);
+        // TODO - need implement
         const methods = json.class.methods[0].method ?? [];
         const properties = (json.class.members ?? [])[0]?.member ?? [];
-        const className = json.class["$"].name;
-        const inherits = json.class["$"].inherits;
         const constants = (json.class.constants ?? [])[0]?.constant ?? [];
         const enums: { [key: string]: any } = {};
 
@@ -54,55 +53,58 @@ export class LibraryBuilder {
             }
         }
 
-        const result = `
+        const customDeclare = `
 declare const load: <T extends AssetPath>(path: T) => AssetType[T];
 declare const preload: <T extends AssetPath>(path: T) => AssetType[T];
-declare function remotesync(target: any, key: string, descriptor: any): any
-declare function remote(target: any, key: string, descriptor: any): any
+declare function remotesync(target: any, key: string, descriptor: any): any;
+declare function remote(target: any, key: string, descriptor: any): any;
+`;
 
-${properties
-    .map((property: any) => {
-        const name = sanitizeGodotNameForTs(property["$"].name, "property");
-        // these dont have .xml files
-        let commentOut = name === "VisualScriptEditor" || name === "GodotSharp";
+        const propertyDeclarations = properties
+            .map((property: any) => {
+                const name = sanitizeGodotNameForTs(
+                    property["$"].name,
+                    "property",
+                );
+                let commentOut =
+                    name === "VisualScriptEditor" ||
+                    name === "GodotSharp" ||
+                    name === "NavigationMeshGenerator";
+                singletons.push(name);
 
-        // TODO:
-        if (name === "NavigationMeshGenerator") {
-            commentOut = true;
-        }
+                if (!property["_"]) {
+                    return "";
+                }
 
-        singletons.push(name);
+                let declaration = "";
+                declaration += formatJsDoc(property["_"].trim()) + "\n";
+                if (commentOut) {
+                    declaration += "//";
+                }
+                let _type = godotTypeToTsType(property["$"].type) + "Class;";
+                declaration += `declare const ${name}: ${_type}`;
+                return declaration;
+            })
+            .join("\n");
 
-        if (!property["_"]) {
-            return "";
-        }
+        const enumDeclarations = Object.keys(enums)
+            .map((key) => {
+                const enumItemsArray = enums[key].map((enumItem: any) => {
+                    const docs = `${formatJsDoc(enumItem.doc)}\n`;
+                    const enumItemValue = /^-?\d+$/.test(enumItem.value)
+                        ? enumItem.value
+                        : `"${enumItem.value}"`;
+                    return `${docs}\n${enumItem.name} = ${enumItemValue}`;
+                });
 
-        return `
-${formatJsDoc(property["_"].trim())}
-${commentOut ? "//" : ""}declare const ${name}: ${godotTypeToTsType(
-            property["$"].type,
-        )}Class;`;
-    })
-    .join("\n")}
+                const enumItems = enumItemsArray.join(",\n");
 
-${Object.keys(enums)
-    .map((key) => {
-        return `
-    declare enum ${sanitizeGodotNameForTs(key, "argument")} {
-      ${enums[key]
-          .map((enumItem: any) => {
-              return `${formatJsDoc(enumItem.doc)}\n${enumItem.name} = ${
-                  /^-?\d+$/.test(enumItem.value)
-                      ? enumItem.value
-                      : '"' + enumItem.value + '"'
-              }`;
-          })
-          .join(",\n")}
-    }
-    `;
-    })
-    .join("\n")}
-    `;
+                let name = sanitizeGodotNameForTs(key, "argument");
+                return `declare enum ${name} {\n${enumItems}\n}`;
+            })
+            .join("\n");
+
+        const result = `${customDeclare} \n${propertyDeclarations} \n${enumDeclarations}`;
 
         return { result, singletons };
     }
