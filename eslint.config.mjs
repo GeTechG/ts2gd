@@ -5,20 +5,22 @@ import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default tseslint.config(
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
-    eslintPluginPrettierRecommended,
     {
         ignores: [
             "**/_godot_defs/**",
             "**/mockProject/**",
-            "**/godot_src/**",
+            "**/godot_source/**",
             "**/js/**",
             ".eslintrc.js",
             "tsconfig.json",
             "package.json",
             "package-lock.json",
         ],
+    },
+    eslint.configs.recommended,
+    ...tseslint.configs.recommended,
+    eslintPluginPrettierRecommended,
+    {
         languageOptions: {
             ecmaVersion: 13,
         },
