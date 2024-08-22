@@ -89,7 +89,15 @@ export const parseClassDeclaration = (node: ts.ClassDeclaration | ts.ClassExpres
     const settersAndGetters = getSettersAndGetters(node.members, props);
     const parsedSetterGetters = settersAndGetters
         .map(({ setter, getter, name, exportText }) => {
-            return `${exportText ?? ""}var ${name} setget ${setter ? name + "_set" : ""}, ${getter ? name + "_get" : ""}`;
+            let varDeclare = `var ${name}:\n\t`;
+            if (setter && getter) {
+                varDeclare += `set = ${name}_set, get = ${name}_get`;
+            } else if (setter) {
+                varDeclare += `set = ${name}_set`;
+            } else if (getter) {
+                varDeclare += `get = ${name}_get`;
+            }
+            return varDeclare;
         })
         .join("\n");
 

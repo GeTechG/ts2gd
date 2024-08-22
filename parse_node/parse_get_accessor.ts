@@ -9,10 +9,7 @@ export const parseGetAccessor = (node: ts.GetAccessorDeclaration, props: ParseSt
         nodes: [node.name, node.body, ...node.parameters],
         addIndent: true,
         props,
-        parsedStrings: (name, body, ...params) => `
-func ${name}_get(${params.join(", ")}):
-  ${body || "pass"}
-`,
+        parsedStrings: (name, body, ...params) => `func ${name}_get(${params.join(", ")}):\n\t${body || "pass"}`,
     });
 };
 

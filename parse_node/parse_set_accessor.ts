@@ -9,11 +9,7 @@ export const parseSetAccessor = (node: ts.SetAccessorDeclaration, props: ParseSt
         nodes: [node.name, node.body, ...node.parameters],
         props,
         addIndent: true,
-        parsedStrings: (name, body, ...params) =>
-            `
-func ${name}_set(${params.join(", ")}):
-  ${body || "pass"}
-`,
+        parsedStrings: (name, body, ...params) => `func ${name}_set(${params.join(", ")}):\n\t${body || "pass"}`,
     });
 };
 

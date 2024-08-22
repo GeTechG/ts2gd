@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="" />
+    <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/ts_src/MyNode.ts" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/ts_src/MyNode.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_node/parse_get_accessor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_get_accessor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_node/parse_set_accessor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_set_accessor.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
