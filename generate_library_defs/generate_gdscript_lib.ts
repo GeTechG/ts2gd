@@ -29,23 +29,13 @@ export const getCodeForMethod = (
     generateAsGlobals: boolean,
     props: {
         name: string;
-        isConstructor: boolean;
         docString: string;
         argumentList: string;
         returnType: string;
         isAbstract: boolean;
     },
-    // TOOD: This should really not be undefined
-    containingClassName?: string,
 ) => {
-    const {
-        name,
-        isConstructor,
-        argumentList,
-        docString,
-        isAbstract,
-        returnType,
-    } = props;
+    const { name, argumentList, docString, isAbstract, returnType } = props;
 
     switch (name) {
         case "connect":
@@ -85,10 +75,6 @@ get_node_unsafe<T extends Node>(path: NodePathType): T;
         case "emit_signal":
             return `${docString} \nemit_signal< U extends (...args: Args) => any, T extends Signal<U>, Args extends any[]>(signal: T, ...args: Args): void;`;
         default:
-            if (isConstructor) {
-                return "";
-            }
-
             if (generateAsGlobals) {
                 return `${docString} \ndeclare const ${name}: (${argumentList}) => ${returnType}`;
             } else {
@@ -134,28 +120,24 @@ const argsToString = (
 export const parseMethod = (
     method: GodotXMLMethod,
     props?: {
-        containgClassName?: string;
         generateAsGlobals?: boolean;
     },
 ) => {
-    const containingClassName = props?.containgClassName ?? undefined;
     const generateAsGlobal = props?.generateAsGlobals ?? false;
     const name = method.$.name;
     const param = method.param;
     const isVarArgs = method.$.qualifiers === "vararg";
-    const isConstructor =
-        containingClassName !== undefined && name === containingClassName;
     const docString = formatJsDoc(method.description[0].trim());
     let returnType = godotTypeToTsType(
         method.return?.[0]["$"].type ?? "Variant",
     );
-    let argumentList = "";
+    let paramsList = "";
 
     if (param || isVarArgs) {
         if (isVarArgs) {
-            argumentList = "...param: any[]";
+            paramsList = "...param: any[]";
         } else {
-            argumentList = argsToString(param).join(", ");
+            paramsList = argsToString(param).join(", ");
         }
     }
 
@@ -199,8 +181,7 @@ export const parseMethod = (
 
     const result = {
         name,
-        argumentList,
-        isConstructor,
+        argumentList: paramsList,
         docString,
         returnType,
         isAbstract,
@@ -208,11 +189,7 @@ export const parseMethod = (
 
     return {
         ...result,
-        codegen: getCodeForMethod(
-            generateAsGlobal,
-            result,
-            containingClassName,
-        ),
+        codegen: getCodeForMethod(generateAsGlobal, result),
     };
 };
 

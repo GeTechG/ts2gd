@@ -8,8 +8,8 @@ import { copyFolderRecursiveSync } from "../ts_utils";
 
 import writeBaseDefinitions from "./generate_bases";
 import {
-    GodotXMLMethod,
     generateGdscriptLib,
+    GodotXMLMethod,
     parseMethod,
 } from "./generate_gdscript_lib";
 import {
@@ -108,20 +108,25 @@ export class LibraryBuilder {
     }
 
     async parseFile(path: string, singletons: string[]) {
-        const content = fs.readFileSync(path, "utf-8");
+        const content = fs
+            .readFileSync(path, "utf-8")
+            .replaceAll("<constructor ", "<_constructor ")
+            .replaceAll("</constructor>", "</_constructor>");
         const json = await parseStringPromise(content);
+
         const methodsXml: GodotXMLMethod[] =
             json.class.methods?.[0].method ?? [];
+
         const members = (json.class.members ?? [])[0]?.member ?? [];
         let className: string = json.class["$"].name;
         const inherits = json.class["$"].inherits;
         const constants = (json.class.constants ?? [])[0]?.constant ?? [];
         const signals = (json.class.signals ?? [])[0]?.signal ?? [];
-        const methods = methodsXml.map((method) =>
-            parseMethod(method, { containgClassName: className }),
-        );
-        const constructorInfo = methods.filter(
-            (method) => method.isConstructor,
+        const methods = methodsXml.map((method) => parseMethod(method));
+        const constructorsXml: GodotXMLMethod[] =
+            json.class.constructors?.[0]._constructor ?? [];
+        const constructorInfo = constructorsXml.map((method) =>
+            parseMethod(method),
         );
 
         // This is true for classes that can be constructed without a new keyword, e.g. const myVector = Vector2();
@@ -159,23 +164,23 @@ export class LibraryBuilder {
             let typeAnnotation = `: ${className}`;
             let constructors = "";
 
+            const addConstructors = (info: any[], prefix: string = "new") => {
+                return info
+                    .map(
+                        (inf) =>
+                            `  ${prefix}(${inf.argumentList})${typeAnnotation};`,
+                    )
+                    .join("\n");
+            };
+
             if (constructorInfo.length === 0) {
                 constructors += `  new()${typeAnnotation}; \n`;
             } else {
-                constructors += `
-${constructorInfo
-    .map((inf) => `  new(${inf.argumentList})${typeAnnotation};`)
-    .join("\n")}
-`;
+                constructors += `\n${addConstructors(constructorInfo)}\n`;
             }
 
-            // This is for being able to do etc. const x = Vector2();
             if (isSpecialConstructorClass) {
-                constructors += `
-${constructorInfo
-    .map((inf) => `  (${inf.argumentList})${typeAnnotation};`)
-    .join("\n")}
-`;
+                constructors += `\n${addConstructors(constructorInfo, "")}\n`;
             }
 
             if (!isSpecialConstructorClass) {
@@ -185,117 +190,88 @@ ${constructorInfo
             return constructors;
         })();
 
-        const output = `
-${formatJsDoc(json.class.description[0])}
-${(() => {
-    if (isSpecialConstructorClass) {
-        return `declare class ${className}Constructor {`;
-    } else {
-        return `declare class ${className}${
-            inherits ? ` extends ${inherits} ` : ""
-        } {`;
-    }
-})()}
+        const classDeclaration = isSpecialConstructorClass
+            ? `declare class ${className}Constructor {`
+            : `declare class ${className}${inherits ? ` extends ${inherits} ` : ""} {`;
 
-${arrayAccessType ? `[n: number]: ${arrayAccessType};` : ""}  
-${formatJsDoc(json.class.description[0])}
-${isSpecialConstructorClass ? "" : constructors}
-${members
-    .map((property: any) => {
-        const propertyName = sanitizeGodotNameForTs(
-            property["$"].name,
-            "property",
-        );
+        const arrayAccess = arrayAccessType
+            ? `[n: number]: ${arrayAccessType};`
+            : "";
 
-        if (!property["_"]) {
-            return "";
-        }
+        const memberDeclarations = members
+            .map((property: any) => {
+                const propertyName = sanitizeGodotNameForTs(
+                    property["$"].name,
+                    "property",
+                );
+                if (!property["_"]) return "";
+                if (propertyName === "rotate" && className === "PathFollow2D")
+                    return "";
+                let doc = formatJsDoc(property["_"].trim());
+                return `${doc}\n${propertyName}: ${godotTypeToTsType(property["$"].type)};`;
+            })
+            .join("\n");
 
-        // Godot allows for a method and a variable with the same name, but TS does not.
-        if (propertyName === "rotate" && className === "PathFollow2D") {
-            return;
-        }
+        const methodDeclarations = methods
+            .map((method) => method.codegen)
+            .join("\n\n");
 
-        return `
-${formatJsDoc(property["_"].trim())}
-${propertyName}: ${godotTypeToTsType(property["$"].type)};`;
-    })
-    .join("\n")}
-
-${methods
-    .map((method) => {
-        return method.codegen;
-    })
-    .join("\n\n")}
-
-  connect<T extends SignalsOf<${className}>>(signal: T, method: SignalFunction<${className}[T]>): number;
-
-${(() => {
-    // Generate wrapper functions for operator overloading stuff.
-
-    if (
-        className === "Vector2" ||
-        className === "Vector2i" ||
-        className === "Vector3" ||
-        className === "Vector3i"
-    ) {
-        return `
+        let isOverloadClass = [
+            "Vector2",
+            "Vector2i",
+            "Vector3",
+            "Vector3i",
+        ].includes(className);
+        const operatorOverloads = isOverloadClass
+            ? `
 add(other: number | ${className}): ${className};
 sub(other: number | ${className}): ${className};
 mul(other: number | ${className}): ${className};
-div(other: number | ${className}): ${className};
-`;
-    } else {
-        return "";
-    }
-})()}
+div(other: number | ${className}): ${className};`
+            : "";
 
-${constants
-    .map((c: any) => {
-        const value: string = c["$"].value.trim();
-        let genericClassNameRe = /([A-Z][a-zA-Z0-9]*)\(.*\)/;
-        const match = genericClassNameRe.exec(value);
-        const type = godotTypeToTsType(match?.[1] ?? "any");
+        const constantDeclarations = constants
+            .map((c: any) => {
+                const value: string = c["$"].value.trim();
+                const match = /([A-Z][a-zA-Z0-9]*)\(.*\)/.exec(value);
+                const type = godotTypeToTsType(match?.[1] ?? "any");
+                return `${formatJsDoc(c["_"] || "")}\nstatic ${c["$"].name}: ${type};\n`;
+            })
+            .join("\n");
 
-        if (type) {
-            return `${formatJsDoc(c["_"] || "")}\nstatic ${
-                c["$"].name
-            }: ${type};\n`;
-        } else {
-            return `${formatJsDoc(c["_"] || "")}\n static ${
-                c["$"].name
-            }: ${type};\n`;
-        }
-    })
-    .join("\n")}
+        const signalDeclarations = signals
+            .map((signal: any) => {
+                return `${formatJsDoc(signal.description[0])}\n$${signal["$"].name}: Signal<(${(
+                    signal.argument || []
+                )
+                    .map(
+                        (arg: any) =>
+                            `${arg["$"].name}: ${godotTypeToTsType(arg["$"].type)}`,
+                    )
+                    .join(", ")}) => void>\n`;
+            })
+            .join("\n");
 
-${signals
-    .map((signal: any) => {
-        return `${formatJsDoc(signal.description[0])}\n$${
-            signal["$"].name
-        }: Signal<(${(signal.argument || [])
-            .map(
-                (arg: any) =>
-                    arg["$"].name + ": " + godotTypeToTsType(arg["$"].type),
-            )
-            .join(", ")}) => void>\n`;
-    })
-    .join("\n")}
-}
-${(() => {
-    if (isSpecialConstructorClass) {
+        const specialConstructorType = isSpecialConstructorClass
+            ? `declare type ${className} = ${className}Constructor;
+declare var ${className}: typeof ${className}Constructor & { ${constructors} }`
+            : "";
+
         return `
-declare type ${className} = ${className}Constructor;
-declare var ${className}: typeof ${className}Constructor & {
-  ${constructors}
-}`;
-    }
-
-    return "";
-})()}
+${formatJsDoc(json.class.description[0])}
+${classDeclaration}
+${arrayAccess}
+${formatJsDoc(json.class.description[0])}
+${isSpecialConstructorClass ? "" : constructors}
+${memberDeclarations}
+${methodDeclarations}
+connect<T extends SignalsOf<${className}>>(signal: T, method: SignalFunction<${className}[T]>): number;
+${operatorOverloads}
+${constantDeclarations}
+${signalDeclarations}
+}
+${specialConstructorType}
 `;
-
-        return output;
     }
 
     async writeLibraryDefinitions() {

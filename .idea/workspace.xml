@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +77,7 @@
       <updated>1724238396160</updated>
       <workItem from="1724238397187" duration="7000" />
       <workItem from="1724238409043" duration="2191000" />
+      <workItem from="1724311536333" duration="6077000" />
     </task>
     <servers />
   </component>
@@ -91,5 +94,17 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/generate_library_defs/library_builder.ts</url>
+          <line>110</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
