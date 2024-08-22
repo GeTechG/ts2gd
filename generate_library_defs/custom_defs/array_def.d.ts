@@ -5,7 +5,6 @@ type ReadonlyArray<T> = {
     back(): T;
 };
 
-// @ts-expect-error ...
 type FlatArray<Arr, Depth extends number> = {
     done: Arr;
     recur: Arr extends ReadonlyArray<infer InnerArr>

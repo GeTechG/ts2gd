@@ -7,19 +7,10 @@ import { Paths } from "../project";
 import { copyFolderRecursiveSync } from "../ts_utils";
 
 import writeBaseDefinitions from "./generate_bases";
-import {
-    generateGdscriptLib,
-    GodotXMLMethod,
-    parseMethod,
-} from "./generate_gdscript_lib";
-import {
-    formatJsDoc,
-    godotTypeToTsType,
-    sanitizeGodotNameForTs,
-} from "./generation_utils";
+import { generateGdscriptLib, GodotXMLMethod, parseMethod } from "./generate_gdscript_lib";
+import { formatJsDoc, godotTypeToTsType, sanitizeGodotNameForTs } from "./generation_utils";
 
-const GLOBAL_SCOPE_DECLARES =
-    "generate_library_defs/custom_defs/global_score_declares.d.ts";
+const GLOBAL_SCOPE_DECLARES = "generate_library_defs/custom_defs/global_score_declares.d.ts";
 
 export class LibraryBuilder {
     constructor(private paths: Paths) {
@@ -32,9 +23,7 @@ export class LibraryBuilder {
         writeBaseDefinitions(this.paths);
     }
 
-    async parseGlobalScope(
-        path: string,
-    ): Promise<{ result: string; singletons: string[] }> {
+    async parseGlobalScope(path: string): Promise<{ result: string; singletons: string[] }> {
         const singletons: string[] = [];
         const content = fs.readFileSync(path, "utf-8");
         const json = await parseStringPromise(content);
@@ -49,10 +38,7 @@ export class LibraryBuilder {
             const enumName = c["$"].enum;
 
             if (enumName) {
-                enums[enumName] = [
-                    ...(enums[enumName] || []),
-                    { ...c["$"], doc: c["_"] },
-                ];
+                enums[enumName] = [...(enums[enumName] || []), { ...c["$"], doc: c["_"] }];
             }
         }
 
@@ -60,14 +46,8 @@ export class LibraryBuilder {
 
         const propertyDeclarations = properties
             .map((property: any) => {
-                const name = sanitizeGodotNameForTs(
-                    property["$"].name,
-                    "property",
-                );
-                let commentOut =
-                    name === "VisualScriptEditor" ||
-                    name === "GodotSharp" ||
-                    name === "NavigationMeshGenerator";
+                const name = sanitizeGodotNameForTs(property["$"].name, "property");
+                let commentOut = name === "VisualScriptEditor" || name === "GodotSharp" || name === "NavigationMeshGenerator";
                 singletons.push(name);
 
                 if (!property["_"]) {
@@ -89,9 +69,7 @@ export class LibraryBuilder {
             .map((key) => {
                 const enumItemsArray = enums[key].map((enumItem: any) => {
                     const docs = `${formatJsDoc(enumItem.doc)}\n`;
-                    const enumItemValue = /^-?\d+$/.test(enumItem.value)
-                        ? enumItem.value
-                        : `"${enumItem.value}"`;
+                    const enumItemValue = /^-?\d+$/.test(enumItem.value) ? enumItem.value : `"${enumItem.value}"`;
                     return `${docs}\n${enumItem.name} = ${enumItemValue}`;
                 });
 
@@ -114,8 +92,7 @@ export class LibraryBuilder {
             .replaceAll("</constructor>", "</_constructor>");
         const json = await parseStringPromise(content);
 
-        const methodsXml: GodotXMLMethod[] =
-            json.class.methods?.[0].method ?? [];
+        const methodsXml: GodotXMLMethod[] = json.class.methods?.[0].method ?? [];
 
         const members = (json.class.members ?? [])[0]?.member ?? [];
         let className: string = json.class["$"].name;
@@ -123,11 +100,8 @@ export class LibraryBuilder {
         const constants = (json.class.constants ?? [])[0]?.constant ?? [];
         const signals = (json.class.signals ?? [])[0]?.signal ?? [];
         const methods = methodsXml.map((method) => parseMethod(method));
-        const constructorsXml: GodotXMLMethod[] =
-            json.class.constructors?.[0]._constructor ?? [];
-        const constructorInfo = constructorsXml.map((method) =>
-            parseMethod(method),
-        );
+        const constructorsXml: GodotXMLMethod[] = json.class.constructors?.[0]._constructor ?? [];
+        const constructorInfo = constructorsXml.map((method) => parseMethod(method));
 
         // This is true for classes that can be constructed without a new keyword, e.g. const myVector = Vector2();
         let isSpecialConstructorClass =
@@ -165,12 +139,7 @@ export class LibraryBuilder {
             let constructors = "";
 
             const addConstructors = (info: any[], prefix: string = "new") => {
-                return info
-                    .map(
-                        (inf) =>
-                            `  ${prefix}(${inf.argumentList})${typeAnnotation};`,
-                    )
-                    .join("\n");
+                return info.map((inf) => `  ${prefix}(${inf.argumentList})${typeAnnotation};`).join("\n");
             };
 
             if (constructorInfo.length === 0) {
@@ -194,34 +163,21 @@ export class LibraryBuilder {
             ? `declare class ${className}Constructor {`
             : `declare class ${className}${inherits ? ` extends ${inherits} ` : ""} {`;
 
-        const arrayAccess = arrayAccessType
-            ? `[n: number]: ${arrayAccessType};`
-            : "";
+        const arrayAccess = arrayAccessType ? `[n: number]: ${arrayAccessType};` : "";
 
         const memberDeclarations = members
             .map((property: any) => {
-                const propertyName = sanitizeGodotNameForTs(
-                    property["$"].name,
-                    "property",
-                );
+                const propertyName = sanitizeGodotNameForTs(property["$"].name, "property");
                 if (!property["_"]) return "";
-                if (propertyName === "rotate" && className === "PathFollow2D")
-                    return "";
+                if (propertyName === "rotate" && className === "PathFollow2D") return "";
                 let doc = formatJsDoc(property["_"].trim());
                 return `${doc}\n${propertyName}: ${godotTypeToTsType(property["$"].type)};`;
             })
             .join("\n");
 
-        const methodDeclarations = methods
-            .map((method) => method.codegen)
-            .join("\n\n");
+        const methodDeclarations = methods.map((method) => method.codegen).join("\n\n");
 
-        let isOverloadClass = [
-            "Vector2",
-            "Vector2i",
-            "Vector3",
-            "Vector3i",
-        ].includes(className);
+        let isOverloadClass = ["Vector2", "Vector2i", "Vector3", "Vector3i"].includes(className);
         const operatorOverloads = isOverloadClass
             ? `
 add(other: number | ${className}): ${className};
@@ -241,13 +197,8 @@ div(other: number | ${className}): ${className};`
 
         const signalDeclarations = signals
             .map((signal: any) => {
-                return `${formatJsDoc(signal.description[0])}\n$${signal["$"].name}: Signal<(${(
-                    signal.argument || []
-                )
-                    .map(
-                        (arg: any) =>
-                            `${arg["$"].name}: ${godotTypeToTsType(arg["$"].type)}`,
-                    )
+                return `${formatJsDoc(signal.description[0])}\n$${signal["$"].name}: Signal<(${(signal.argument || [])
+                    .map((arg: any) => `${arg["$"].name}: ${godotTypeToTsType(arg["$"].type)}`)
                     .join(", ")}) => void>\n`;
             })
             .join("\n");
@@ -275,20 +226,10 @@ ${specialConstructorType}
     }
 
     async writeLibraryDefinitions() {
-        if (
-            !fs.existsSync(this.paths.csgClassesPath) ||
-            !fs.existsSync(this.paths.normalClassesPath)
-        ) {
-            console.info(
-                "No Godot source installation found, writing from backup...",
-            );
+        if (!fs.existsSync(this.paths.csgClassesPath) || !fs.existsSync(this.paths.normalClassesPath)) {
+            console.info("No Godot source installation found, writing from backup...");
 
-            let localGodotDefs = path.join(
-                __dirname,
-                "..",
-                "..",
-                "_godot_defs",
-            );
+            let localGodotDefs = path.join(__dirname, "..", "..", "_godot_defs");
 
             copyFolderRecursiveSync(localGodotDefs, this.paths.rootPath);
 
@@ -303,25 +244,13 @@ ${specialConstructorType}
             path.join(this.paths.normalClassesPath, "@GlobalScope.xml"),
         );
 
-        fs.writeFileSync(
-            path.join(this.paths.staticGodotDefsPath, "@globals.d.ts"),
-            globalScope,
-        );
+        fs.writeFileSync(path.join(this.paths.staticGodotDefsPath, "@globals.d.ts"), globalScope);
 
-        const globalFunctions = await generateGdscriptLib(
-            path.join(this.paths.gdscriptPath, "@GDScript.xml"),
-        );
+        const globalFunctions = await generateGdscriptLib(path.join(this.paths.gdscriptPath, "@GDScript.xml"));
 
-        fs.writeFileSync(
-            path.join(this.paths.staticGodotDefsPath, "@global_functions.d.ts"),
-            globalFunctions,
-        );
+        fs.writeFileSync(path.join(this.paths.staticGodotDefsPath, "@global_functions.d.ts"), globalFunctions);
 
-        const xmlPaths = [
-            this.paths.csgClassesPath,
-            this.paths.websocketClassesPath,
-            this.paths.normalClassesPath,
-        ]
+        const xmlPaths = [this.paths.csgClassesPath, this.paths.websocketClassesPath, this.paths.normalClassesPath]
             .flatMap((dir) => fs.readdirSync(dir).map((p) => path.join(dir, p)))
             .filter((file) => file.endsWith(".xml"));
 
@@ -362,13 +291,7 @@ ${specialConstructorType}
 
             const result = await this.parseFile(fullPath, singletons);
 
-            fs.writeFileSync(
-                path.join(
-                    this.paths.staticGodotDefsPath,
-                    fileName.slice(0, -4) + ".d.ts",
-                ),
-                result,
-            );
+            fs.writeFileSync(path.join(this.paths.staticGodotDefsPath, fileName.slice(0, -4) + ".d.ts"), result);
         }
     }
 }

@@ -49,38 +49,23 @@ export class AssetSourceFile extends BaseAsset {
 
         let gdPath = path.join(
             project.paths.destGdPath,
-            sourceFilePath.slice(
-                project.paths.sourceTsPath.length,
-                -path.extname(sourceFilePath).length,
-            ) + ".gd",
+            sourceFilePath.slice(project.paths.sourceTsPath.length, -path.extname(sourceFilePath).length) + ".gd",
         );
 
         this.resPath = project.paths.fsPathToResPath(gdPath);
         this.gdPath = gdPath;
-        this.gdContainingDirectory = gdPath.slice(
-            0,
-            gdPath.lastIndexOf("/") + 1,
-        );
+        this.gdContainingDirectory = gdPath.slice(0, gdPath.lastIndexOf("/") + 1);
         this.fsPath = sourceFilePath;
-        this.tsRelativePath = sourceFilePath.slice(
-            project.paths.rootPath.length + 1,
-        );
-        this.name = this.gdPath.slice(
-            this.gdContainingDirectory.length,
-            -".gd".length,
-        );
+        this.tsRelativePath = sourceFilePath.slice(project.paths.rootPath.length + 1);
+        this.name = this.gdPath.slice(this.gdContainingDirectory.length, -".gd".length);
         this.project = project;
-        this._isAutoload = !!this.project.godotProject.autoloads.find(
-            (a) => a.resPath === this.resPath,
-        );
+        this._isAutoload = !!this.project.godotProject.autoloads.find((a) => a.resPath === this.resPath);
     }
 
     reload() {}
 
     private getAst(): TsGdError | ts.SourceFile {
-        const ast = this.project.program
-            .getProgram()
-            .getSourceFile(this.fsPath);
+        const ast = this.project.program.getProgram().getSourceFile(this.fsPath);
 
         if (!ast) {
             return {
@@ -106,10 +91,7 @@ This is a ts2gd bug. Please create an issue on GitHub for it.`,
         const topLevelClasses = ast
             .getChildren()[0] // SyntaxList
             .getChildren()
-            .filter(
-                (node): node is ts.ClassDeclaration =>
-                    node.kind === SyntaxKind.ClassDeclaration,
-            );
+            .filter((node): node is ts.ClassDeclaration => node.kind === SyntaxKind.ClassDeclaration);
 
         if (topLevelClasses.length === 0) {
             return {
@@ -124,8 +106,7 @@ This is a ts2gd bug. Please create an issue on GitHub for it.`,
             return {
                 error: ErrorName.TooManyClassesFound,
                 location: topLevelClasses[1],
-                description:
-                    "Every file must have exactly one class. Consider moving this class into a new file.",
+                description: "Every file must have exactly one class. Consider moving this class into a new file.",
                 stack: new Error().stack ?? "",
             };
         }
@@ -173,13 +154,9 @@ This is a ts2gd bug. Please create an issue on GitHub for it.`,
 
         return {
             error: ErrorName.ClassDoesntExtendAnything,
-            description: `The class in this file needs to extend another class: ${
-                this.fsPath
-            }
+            description: `The class in this file needs to extend another class: ${this.fsPath}
 
-Hint: try ${chalk.blueBright(
-                `export class ${node.name?.text ?? ""} extends Node {`,
-            )}
+Hint: try ${chalk.blueBright(`export class ${node.name?.text ?? ""} extends Node {`)}
       `,
             location: node,
             stack: new Error().stack ?? "",
@@ -199,9 +176,7 @@ Hint: try ${chalk.blueBright(
         for (const d of topLevelDefinitions.getChildren()) {
             if (d.kind === SyntaxKind.VariableStatement) {
                 const vs = d as ts.VariableStatement;
-                const isExported = vs.modifiers?.find(
-                    (mod) => mod.kind === SyntaxKind.ExportKeyword,
-                );
+                const isExported = vs.modifiers?.find((mod) => mod.kind === SyntaxKind.ExportKeyword);
 
                 if (isExported) {
                     return vs.declarationList.declarations[0].name.getText();
@@ -222,11 +197,7 @@ Hint: try ${chalk.blueBright(
 
 ${classDecl?.getText() ?? ""}
 
-${chalk.green(
-    `export const MyAutoload = new ${
-        classDecl?.name?.text ?? "[class needs a name]"
-    }()`,
-)} // Add this line!
+${chalk.green(`export const MyAutoload = new ${classDecl?.name?.text ?? "[class needs a name]"}()`)} // Add this line!
 `,
             };
         } else {
@@ -241,9 +212,7 @@ ${chalk.green(
     public string hello = "hi"
   }
 
-  ${chalk.green(
-      "export const MyAutoload = new MyAutoloadClass()",
-  )} // Add this line!
+  ${chalk.green("export const MyAutoload = new MyAutoloadClass()")} // Add this line!
   `,
             };
         }
@@ -257,10 +226,7 @@ ${chalk.green(
         const className = this.exportedTsClassName();
 
         if (className) {
-            return `import('${this.fsPath.slice(
-                0,
-                -".ts".length,
-            )}').${className}`;
+            return `import('${this.fsPath.slice(0, -".ts".length)}').${className}`;
         } else {
             addError({
                 description: `Failed to find className for ${this.fsPath}`,
@@ -274,9 +240,7 @@ ${chalk.green(
     }
 
     private isProjectAutoload(): boolean {
-        return !!this.project.godotProject.autoloads.find(
-            (autoload) => autoload.resPath === this.resPath,
-        );
+        return !!this.project.godotProject.autoloads.find((autoload) => autoload.resPath === this.resPath);
     }
 
     private isDecoratedAutoload(): boolean {
@@ -349,29 +313,22 @@ Second path: ${chalk.yellow(sf.fsPath)}`,
         }
     }
 
-    async compile(
-        watchProgram: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>,
-    ): Promise<void> {
+    async compile(watchProgram: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>): Promise<void> {
         const oldAutoloadClassName = this.getAutoloadNameFromExportedVariable();
 
         let fsContent = await fs.readFile(this.fsPath, "utf-8");
-        let sourceFileAst = watchProgram
-            .getProgram()
-            .getSourceFile(this.fsPath);
+        let sourceFileAst = watchProgram.getProgram().getSourceFile(this.fsPath);
         let tries = 0;
 
         while (
             (!sourceFileAst ||
                 // Chokidar and TS use different strategies to monitor files, so we can race ahead of them.
                 // Wait for them to catch up.
-                (!this.project.args.buildOnly &&
-                    fsContent !== sourceFileAst.getFullText())) &&
+                (!this.project.args.buildOnly && fsContent !== sourceFileAst.getFullText())) &&
             ++tries < 50
         ) {
             await new Promise((resolve) => setTimeout(resolve, 10));
-            sourceFileAst = watchProgram
-                .getProgram()
-                .getSourceFile(this.fsPath);
+            sourceFileAst = watchProgram.getProgram().getSourceFile(this.fsPath);
             if (sourceFileAst) {
                 fsContent = await fs.readFile(this.fsPath, "utf-8");
             }
@@ -422,21 +379,14 @@ Second path: ${chalk.yellow(sf.fsPath)}`,
                 addError(error);
             }
 
-            const newAutoloadClassName =
-                this.getAutoloadNameFromExportedVariable();
+            const newAutoloadClassName = this.getAutoloadNameFromExportedVariable();
 
-            if (
-                typeof oldAutoloadClassName === "string" &&
-                typeof newAutoloadClassName === "string"
-            ) {
+            if (typeof oldAutoloadClassName === "string" && typeof newAutoloadClassName === "string") {
                 // TODO: Somehow put this autoload logic elsewhere.
                 // Check if they changed the name of the exported autoload variable.
                 if (newAutoloadClassName !== oldAutoloadClassName) {
                     this.project.godotProject.removeAutoload(this.resPath);
-                    this.project.godotProject.addAutoload(
-                        newAutoloadClassName,
-                        this.resPath,
-                    );
+                    this.project.godotProject.addAutoload(newAutoloadClassName, this.resPath);
                 }
             }
         }
@@ -456,9 +406,7 @@ Second path: ${chalk.yellow(sf.fsPath)}`,
                 error: ErrorName.AutoloadNotExported,
                 description: `Be sure to export an instance of your autoload class, e.g.:
 
-${chalk.white(
-    `export const ${this.getGodotClassName()} = new ${this.exportedTsClassName()}()`,
-)}
+${chalk.white(`export const ${this.getGodotClassName()} = new ${this.exportedTsClassName()}()`)}
         `,
                 location: classNode ?? this.fsPath,
                 stack: new Error().stack ?? "",
@@ -469,10 +417,7 @@ ${chalk.white(
     }
 
     getGodotClassName(): string {
-        return this.fsPath.slice(
-            this.fsPath.lastIndexOf("/") + 1,
-            -".ts".length,
-        );
+        return this.fsPath.slice(this.fsPath.lastIndexOf("/") + 1, -".ts".length);
     }
 
     checkForAutoloadChanges(): void {
@@ -499,22 +444,15 @@ ${chalk.white(
 
         if (!prevAutoload && shouldBeAutoload) {
             if (!this.isProjectAutoload()) {
-                const autoloadClassName =
-                    this.getAutoloadNameFromExportedVariable();
+                const autoloadClassName = this.getAutoloadNameFromExportedVariable();
 
-                if (
-                    typeof autoloadClassName !== "string" &&
-                    "error" in autoloadClassName
-                ) {
+                if (typeof autoloadClassName !== "string" && "error" in autoloadClassName) {
                     addError(autoloadClassName);
 
                     return;
                 }
 
-                this.project.godotProject.addAutoload(
-                    autoloadClassName,
-                    this.resPath,
-                );
+                this.project.godotProject.addAutoload(autoloadClassName, this.resPath);
             }
 
             if (!isDecoratedAutoload) {
@@ -547,9 +485,7 @@ ${chalk.white(
 
                 addError({
                     error: ErrorName.AutoloadDecoratedButNotProject,
-                    description: `Since you removed this as an autoload class in Godot, you must remove ${chalk.white(
-                        "@autoload",
-                    )}.`,
+                    description: `Since you removed this as an autoload class in Godot, you must remove ${chalk.white("@autoload")}.`,
                     location: "error" in classNode ? this.fsPath : classNode,
                     stack: new Error().stack ?? "",
                 });

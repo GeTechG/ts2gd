@@ -2,10 +2,7 @@ import ts from "typescript";
 
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 
-export const parseVariableStatement = (
-    node: ts.VariableStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseVariableStatement = (node: ts.VariableStatement, props: ParseState): ParseNodeType => {
     const modifiers = node.modifiers?.map((x) => x.getText());
 
     // skip variable declarations; there's no code to generate here

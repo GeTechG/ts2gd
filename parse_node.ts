@@ -5,23 +5,14 @@ import { AssetSourceFile } from "./project/assets/asset_source_file";
 import { ErrorName, TsGdError, addError } from "./errors";
 import { LibraryFunctionName } from "./parse_node/library_functions";
 import { Scope } from "./scope";
-import {
-    generatePrecedingNewlines,
-    syntaxKindToString as kindToString,
-    syntaxKindToString,
-} from "./ts_utils";
+import { generatePrecedingNewlines, syntaxKindToString as kindToString, syntaxKindToString } from "./ts_utils";
 import { parseArrayLiteralExpression } from "./parse_node/parse_array_literal_expression";
 import { parseArrowFunction } from "./parse_node/parse_arrow_function";
 import { parseBinaryExpression } from "./parse_node/parse_binary_expression";
 import { parseBlock } from "./parse_node/parse_block";
 import { parseBreakStatement } from "./parse_node/parse_break_statement";
 import { parseCallExpression } from "./parse_node/parse_call_expression";
-import {
-    parseCaseClause,
-    parseDefaultClause,
-    parseSwitchCaseBlock,
-    parseSwitchStatement,
-} from "./parse_node/parse_switch_statement";
+import { parseCaseClause, parseDefaultClause, parseSwitchCaseBlock, parseSwitchStatement } from "./parse_node/parse_switch_statement";
 import { parseClassDeclaration } from "./parse_node/parse_class_declaration";
 import { parseConditionalExpression } from "./parse_node/parse_conditional_expression";
 import { parseConstructor } from "./parse_node/parse_constructor";
@@ -117,11 +108,7 @@ const isTsNodeArray = <T extends ts.Node>(x: any): x is ts.NodeArray<T> => {
 
 export function combine(args: {
     parent: ts.Node;
-    nodes:
-        | ts.Node
-        | undefined
-        | (ts.Node | undefined)[]
-        | ts.NodeArray<ts.Node>;
+    nodes: ts.Node | undefined | (ts.Node | undefined)[] | ts.NodeArray<ts.Node>;
     props: ParseState;
 
     // We default to calling this callback...
@@ -135,9 +122,7 @@ export function combine(args: {
     let { parent, nodes, props, parsedStrings, parsedObjs, addIndent } = args;
 
     if ((!parsedStrings && !parsedObjs) || (parsedStrings && parsedObjs)) {
-        throw new Error(
-            "Need at least one of parsedStrings or parsedObjs, but not both.",
-        );
+        throw new Error("Need at least one of parsedStrings or parsedObjs, but not both.");
     }
 
     if (Array.isArray(nodes)) {
@@ -159,8 +144,7 @@ export function combine(args: {
             content: parsed?.content ?? "",
             extraLines: parsed?.extraLines ?? [],
             hoistedArrowFunctions: parsed?.hoistedArrowFunctions ?? [],
-            hoistedLibraryFunctions:
-                parsed?.hoistedLibraryFunctions ?? new Set(),
+            hoistedLibraryFunctions: parsed?.hoistedLibraryFunctions ?? new Set(),
             files: parsed?.files ?? [],
         };
     });
@@ -172,9 +156,7 @@ export function combine(args: {
             continue;
         }
 
-        const isStatement =
-            node.kind >= SyntaxKind.FirstStatement &&
-            node.kind <= SyntaxKind.LastStatement;
+        const isStatement = node.kind >= SyntaxKind.FirstStatement && node.kind <= SyntaxKind.LastStatement;
 
         const isStandAloneLine =
             isStatement ||
@@ -187,20 +169,10 @@ export function combine(args: {
 
         if (isStatement) {
             if (extraLines.length > 0) {
-                let beforeLines =
-                    extraLines
-                        .filter((line) => line.type === "before")
-                        ?.map((obj) => obj.line) ?? [];
-                let afterLines =
-                    extraLines
-                        .filter((line) => line.type === "after")
-                        ?.map((obj) => obj.line) ?? [];
+                let beforeLines = extraLines.filter((line) => line.type === "before")?.map((obj) => obj.line) ?? [];
+                let afterLines = extraLines.filter((line) => line.type === "after")?.map((obj) => obj.line) ?? [];
 
-                formattedContent = [
-                    ...beforeLines,
-                    formattedContent,
-                    ...afterLines,
-                ].join("\n");
+                formattedContent = [...beforeLines, formattedContent, ...afterLines].join("\n");
 
                 parsedNode.extraLines = [];
             }
@@ -209,9 +181,7 @@ export function combine(args: {
         if (addIndent) {
             if (lines.length > 1) {
                 // indent all but the first line.
-                formattedContent = lines
-                    .map((line, i) => (i > 0 ? "  " : "") + line + "\n")
-                    .join("");
+                formattedContent = lines.map((line, i) => (i > 0 ? "\t" : "") + line + "\n").join("");
             }
         }
 
@@ -227,102 +197,55 @@ export function combine(args: {
         parsedNode.content = formattedContent;
     }
 
-    let stringResult = parsedObjs
-        ? parsedObjs(...parsedNodes)
-        : parsedStrings!(...parsedNodes.map((node) => node.content));
-    const initialWhitespaceLength =
-        stringResult.length - stringResult.trimLeft().length;
-    stringResult =
-        stringResult.slice(initialWhitespaceLength).trimRight() +
-        (stringResult.endsWith("\n") ? "\n" : "");
+    let stringResult = parsedObjs ? parsedObjs(...parsedNodes) : parsedStrings!(...parsedNodes.map((node) => node.content));
+    const initialWhitespaceLength = stringResult.length - stringResult.trimLeft().length;
+    stringResult = stringResult.slice(initialWhitespaceLength).trimRight() + (stringResult.endsWith("\n") ? "\n" : "");
 
     return {
         content: stringResult,
-        hoistedLibraryFunctions: new Set(
-            parsedNodes.flatMap((node) => [
-                ...(node.hoistedLibraryFunctions?.keys() ?? []),
-            ]),
-        ),
-        hoistedArrowFunctions: parsedNodes.flatMap(
-            (node) => node.hoistedArrowFunctions ?? [],
-        ),
+        hoistedLibraryFunctions: new Set(parsedNodes.flatMap((node) => [...(node.hoistedLibraryFunctions?.keys() ?? [])])),
+        hoistedArrowFunctions: parsedNodes.flatMap((node) => node.hoistedArrowFunctions ?? []),
         extraLines: parsedNodes.flatMap((node) => node.extraLines ?? []),
         files: parsedNodes.flatMap((node) => node.files ?? []),
     };
 }
 
-export const parseNode = (
-    genericNode: ts.Node,
-    props: ParseState,
-): ParseNodeType => {
+export const parseNode = (genericNode: ts.Node, props: ParseState): ParseNodeType => {
     switch (genericNode.kind) {
         case SyntaxKind.SourceFile:
             return parseSourceFile(genericNode as ts.SourceFile, props);
         case SyntaxKind.ImportDeclaration:
-            return parseImportDeclaration(
-                genericNode as ts.ImportDeclaration,
-                props,
-            );
+            return parseImportDeclaration(genericNode as ts.ImportDeclaration, props);
         case SyntaxKind.TypeReference:
-            return parseTypeReference(
-                genericNode as ts.TypeReferenceNode,
-                props,
-            );
+            return parseTypeReference(genericNode as ts.TypeReferenceNode, props);
         case SyntaxKind.TypeAliasDeclaration:
-            return parseTypeAliasDeclaration(
-                genericNode as ts.TypeAliasDeclaration,
-                props,
-            );
+            return parseTypeAliasDeclaration(genericNode as ts.TypeAliasDeclaration, props);
         case SyntaxKind.BinaryExpression:
-            return parseBinaryExpression(
-                genericNode as ts.BinaryExpression,
-                props,
-            );
+            return parseBinaryExpression(genericNode as ts.BinaryExpression, props);
         case SyntaxKind.ArrowFunction:
             return parseArrowFunction(genericNode as ts.ArrowFunction, props);
         case SyntaxKind.NumericLiteral:
             return parseNumericLiteral(genericNode as ts.NumericLiteral, props);
         case SyntaxKind.ArrayLiteralExpression:
-            return parseArrayLiteralExpression(
-                genericNode as ts.ArrayLiteralExpression,
-                props,
-            );
+            return parseArrayLiteralExpression(genericNode as ts.ArrayLiteralExpression, props);
         case SyntaxKind.ObjectLiteralExpression:
-            return parseObjectLiteralExpression(
-                genericNode as ts.ObjectLiteralExpression,
-                props,
-            );
+            return parseObjectLiteralExpression(genericNode as ts.ObjectLiteralExpression, props);
         case SyntaxKind.PrefixUnaryExpression:
-            return parsePrefixUnaryExpression(
-                genericNode as ts.PrefixUnaryExpression,
-                props,
-            );
+            return parsePrefixUnaryExpression(genericNode as ts.PrefixUnaryExpression, props);
         case SyntaxKind.AsExpression:
-            return parseNode(
-                (genericNode as ts.AsExpression).expression,
-                props,
-            );
+            return parseNode((genericNode as ts.AsExpression).expression, props);
         case SyntaxKind.NewExpression:
             return parseNewExpression(genericNode as ts.NewExpression, props);
         case SyntaxKind.PostfixUnaryExpression:
-            return parsePostfixUnaryExpression(
-                genericNode as ts.PostfixUnaryExpression,
-                props,
-            );
+            return parsePostfixUnaryExpression(genericNode as ts.PostfixUnaryExpression, props);
         case SyntaxKind.TypeOfExpression:
-            return parseTypeofExpression(
-                genericNode as ts.TypeOfExpression,
-                props,
-            );
+            return parseTypeofExpression(genericNode as ts.TypeOfExpression, props);
         case SyntaxKind.IfStatement:
             return parseIfStatement(genericNode as ts.IfStatement, props);
         case SyntaxKind.EmptyStatement:
             return parseEmptyStatement(genericNode as ts.EmptyStatement, props);
         case SyntaxKind.SwitchStatement:
-            return parseSwitchStatement(
-                genericNode as ts.SwitchStatement,
-                props,
-            );
+            return parseSwitchStatement(genericNode as ts.SwitchStatement, props);
         case SyntaxKind.CaseBlock:
             return parseSwitchCaseBlock(genericNode as ts.CaseBlock, props);
         case SyntaxKind.CaseClause:
@@ -338,134 +261,65 @@ export const parseNode = (
         case SyntaxKind.ForInStatement:
             return parseForInStatement(genericNode as ts.ForInStatement, props);
         case SyntaxKind.MethodDeclaration:
-            return parseMethodDeclaration(
-                genericNode as ts.MethodDeclaration,
-                props,
-            );
+            return parseMethodDeclaration(genericNode as ts.MethodDeclaration, props);
         case SyntaxKind.Parameter:
-            return parseParameter(
-                genericNode as ts.ParameterDeclaration,
-                props,
-            );
+            return parseParameter(genericNode as ts.ParameterDeclaration, props);
         case SyntaxKind.ElementAccessExpression:
-            return parseElementAccessExpression(
-                genericNode as ts.ElementAccessExpression,
-                props,
-            );
+            return parseElementAccessExpression(genericNode as ts.ElementAccessExpression, props);
         case SyntaxKind.PropertyDeclaration:
-            return parsePropertyDeclaration(
-                genericNode as ts.PropertyDeclaration,
-                props,
-            );
+            return parsePropertyDeclaration(genericNode as ts.PropertyDeclaration, props);
         case SyntaxKind.YieldExpression:
-            return parseYieldExpression(
-                genericNode as ts.YieldExpression,
-                props,
-            );
+            return parseYieldExpression(genericNode as ts.YieldExpression, props);
         case SyntaxKind.ParenthesizedExpression:
-            return parseParenthesizedExpression(
-                genericNode as ts.ParenthesizedExpression,
-                props,
-            );
+            return parseParenthesizedExpression(genericNode as ts.ParenthesizedExpression, props);
         case SyntaxKind.Identifier:
             return parseIdentifier(genericNode as ts.Identifier, props);
         case SyntaxKind.ReturnStatement:
-            return parseReturnStatement(
-                genericNode as ts.ReturnStatement,
-                props,
-            );
+            return parseReturnStatement(genericNode as ts.ReturnStatement, props);
         case SyntaxKind.StringLiteral:
             return parseStringLiteral(genericNode as ts.StringLiteral, props);
         case SyntaxKind.TemplateExpression:
-            return parseTemplateExpression(
-                genericNode as ts.TemplateExpression,
-                props,
-            );
+            return parseTemplateExpression(genericNode as ts.TemplateExpression, props);
         case SyntaxKind.NoSubstitutionTemplateLiteral:
-            return parseNoSubstitutionTemplateLiteral(
-                genericNode as ts.NoSubstitutionTemplateLiteral,
-                props,
-            );
+            return parseNoSubstitutionTemplateLiteral(genericNode as ts.NoSubstitutionTemplateLiteral, props);
         case SyntaxKind.BreakStatement:
             return parseBreakStatement(genericNode as ts.BreakStatement, props);
         case SyntaxKind.ContinueStatement:
-            return parseContinueStatement(
-                genericNode as ts.ContinueStatement,
-                props,
-            );
+            return parseContinueStatement(genericNode as ts.ContinueStatement, props);
         case SyntaxKind.Block:
             return parseBlock(genericNode as ts.Block, props);
         case SyntaxKind.CallExpression:
             return parseCallExpression(genericNode as ts.CallExpression, props);
         case SyntaxKind.ConditionalExpression:
-            return parseConditionalExpression(
-                genericNode as ts.ConditionalExpression,
-                props,
-            );
+            return parseConditionalExpression(genericNode as ts.ConditionalExpression, props);
         case SyntaxKind.ExpressionStatement:
-            return parseExpressionStatement(
-                genericNode as ts.ExpressionStatement,
-                props,
-            );
+            return parseExpressionStatement(genericNode as ts.ExpressionStatement, props);
         case SyntaxKind.NonNullExpression:
-            return parseNode(
-                (genericNode as ts.NonNullExpression).expression,
-                props,
-            );
+            return parseNode((genericNode as ts.NonNullExpression).expression, props);
         case SyntaxKind.VariableStatement:
-            return parseVariableStatement(
-                genericNode as ts.VariableStatement,
-                props,
-            );
+            return parseVariableStatement(genericNode as ts.VariableStatement, props);
         case SyntaxKind.VariableDeclaration:
-            return parseVariableDeclaration(
-                genericNode as ts.VariableDeclaration,
-                props,
-            );
+            return parseVariableDeclaration(genericNode as ts.VariableDeclaration, props);
         case SyntaxKind.EnumDeclaration:
-            return parseEnumDeclaration(
-                genericNode as ts.EnumDeclaration,
-                props,
-            );
+            return parseEnumDeclaration(genericNode as ts.EnumDeclaration, props);
         case SyntaxKind.VariableDeclarationList:
-            return parseVariableDeclarationList(
-                genericNode as ts.VariableDeclarationList,
-                props,
-            );
+            return parseVariableDeclarationList(genericNode as ts.VariableDeclarationList, props);
         case SyntaxKind.SuperKeyword:
             return parseSuperKeyword(genericNode as ts.SuperExpression, props);
         case SyntaxKind.PropertyAccessExpression:
-            return parsePropertyAccessExpression(
-                genericNode as ts.PropertyAccessExpression,
-                props,
-            );
+            return parsePropertyAccessExpression(genericNode as ts.PropertyAccessExpression, props);
         case SyntaxKind.ThisKeyword:
             return parseThisKeyword(genericNode as ts.ThisExpression, props);
         case SyntaxKind.Constructor:
-            return parseConstructor(
-                genericNode as ts.ConstructorDeclaration,
-                props,
-            );
+            return parseConstructor(genericNode as ts.ConstructorDeclaration, props);
         case SyntaxKind.ClassExpression:
-            return parseClassDeclaration(
-                genericNode as ts.ClassDeclaration | ts.ClassExpression,
-                props,
-            );
+            return parseClassDeclaration(genericNode as ts.ClassDeclaration | ts.ClassExpression, props);
         case SyntaxKind.ClassDeclaration:
-            return parseClassDeclaration(
-                genericNode as ts.ClassDeclaration | ts.ClassExpression,
-                props,
-            );
+            return parseClassDeclaration(genericNode as ts.ClassDeclaration | ts.ClassExpression, props);
         case SyntaxKind.SetAccessor:
-            return parseSetAccessor(
-                genericNode as ts.SetAccessorDeclaration,
-                props,
-            );
+            return parseSetAccessor(genericNode as ts.SetAccessorDeclaration, props);
         case SyntaxKind.GetAccessor:
-            return parseGetAccessor(
-                genericNode as ts.GetAccessorDeclaration,
-                props,
-            );
+            return parseGetAccessor(genericNode as ts.GetAccessorDeclaration, props);
         case SyntaxKind.MinusEqualsToken:
             return { content: "-=" };
 
@@ -538,10 +392,7 @@ export const parseNode = (
             return { content: "~" };
 
         default:
-            console.error(
-                "Unknown token:",
-                syntaxKindToString(genericNode.kind),
-            );
+            console.error("Unknown token:", syntaxKindToString(genericNode.kind));
             addError({
                 error: ErrorName.UnknownTsSyntax,
                 location: genericNode,

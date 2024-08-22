@@ -1,8 +1,3 @@
-
-// @ts-ignore
-// @ts-ignore
-// @ts-ignore
-
 declare interface Boolean {
 
 }
@@ -53,19 +48,19 @@ declare const NAN: float;
 
 declare interface CallableFunction {
     /** The name of the referenced function. */
-    function: string
+    function: string;
 
     /** Calls the referenced function previously set in [member function] or [method @GDScript.funcref]. */
-    call_func(...args: any[]): any
+    call_func(...args: any[]): any;
 
     /** Calls the referenced function previously set in [member function] or [method @GDScript.funcref]. Contrarily to [method call_func], this method does not support a variable number of arguments but expects all parameters to be passed via a single [Array]. */
-    call_funcv(arg_array: any[]): any
+    call_funcv(arg_array: any[]): any;
 
     /** Returns whether the object still exists and has the function assigned. */
-    is_valid(): boolean
+    is_valid(): boolean;
 
     /** The object containing the referenced function. This object must be of a type actually inheriting from [Object], not a built-in type such as [int], [Vector2] or [Dictionary]. */
-    set_instance(instance: Object): void
+    set_instance(instance: Object): void;
 
     rpc<T extends (...args: any[]) => void>(this: T, ...args: Parameters<T>): void;
 
@@ -110,14 +105,18 @@ declare enum ExportHint {
 declare function exports(...args: (ExportHint | string | number)[]): (target: Node, name: string) => void;
 // @ts-expect-error ...
 declare function exports(target: Node, name: string): void;
-declare const export_flags: (...flags: any[]) => (target: Node, name: string) => void
+
+declare const export_flags: (...flags: any[]) => (target: Node, name: string) => void;
+
 declare function autoload(target: typeof Node): void
+
 declare function tool(target: typeof Node): void;
 
 declare type int = number;
 declare type float = number;
 
 declare function int(x: number): number
+
 declare function float(x: number): number
 
 declare type NodePathType = string
@@ -125,13 +124,11 @@ declare type NodePathType = string
 /**
  * Exclude from T those types that are assignable to U
  */
-// @ts-expect-error ...
 type Exclude<T, U> = T extends U ? never : T;
 
 /**
  * From T, pick a set of properties whose keys are in the union K
  */
-// @ts-expect-error ...
 type Pick<T, K extends keyof T> = {
     [P in K]: T[P]
 }
@@ -139,22 +136,21 @@ type Pick<T, K extends keyof T> = {
 /**
  * Obtain the return type of a function type
  */
-// @ts-expect-error ...
 type ReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
 
-type GeneratorReturnType<T extends Generator> = T extends Generator<any, infer R, any> ? R: never;
+type GeneratorReturnType<T extends Generator> = T extends Generator<any, infer R, any> ? R : never;
 
 /**
  * Construct a type with the properties of T except for those in type K.
  */
-// @ts-expect-error ...
+
 type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
 
 // Used for typing connect()
-// @ts-expect-error ...
+
 type Parameters<T extends (...args: any) => any> = T extends (...args: infer P) => any ? P : never;
 type KeysOnly<T, V> = { [K in keyof T as T[K] extends V ? K : never]: T[K] }
-type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T];
+type KeysMatching<T, V> = { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T];
 type SignalsOf<T> = KeysMatching<T, Signal<any>>;
 type SignalFunction<T> = T extends Signal<infer R> ? R : never;
 type SignalReturnValue<T> = T extends Signal<infer U> ? ReturnType<U> : never;
@@ -203,16 +199,18 @@ interface IteratorReturnResult<TReturn> {
     value: TReturn;
 }
 
-// @ts-expect-error ...
+
 declare const print: (...args: any[]) => void;
 
-// @ts-expect-error ...
+
 type IteratorResult<T, TReturn = any> = IteratorYieldResult<T> | IteratorReturnResult<TReturn>;
 
 interface Iterator<T, TReturn = any, TNext = undefined> extends Object {
     // NOTE: 'next' is defined using a tuple to ensure we report the correct assignability errors in all places.
     next(...args: [] | [TNext]): IteratorResult<T, TReturn>;
+
     return?(value?: TReturn): IteratorResult<T, TReturn>;
+
     throw?(e?: any): IteratorResult<T, TReturn>;
 
     $completed: Signal<() => TReturn>;
@@ -221,14 +219,18 @@ interface Iterator<T, TReturn = any, TNext = undefined> extends Object {
 interface Generator<T = unknown, TReturn = any, TNext = unknown> extends Iterator<T, TReturn, TNext> {
     // NOTE: 'next' is defined using a tuple to ensure we report the correct assignability errors in all places.
     next(...args: [] | [TNext]): IteratorResult<T, TReturn>;
+
     return(value: TReturn): IteratorResult<T, TReturn>;
+
     throw(e: any): IteratorResult<T, TReturn>;
+
     [Symbol.iterator](): Generator<T, TReturn, TNext>;
 
     $completed: Signal<() => TReturn>;
 }
 
-interface Symbol { }
+interface Symbol {
+}
 
 interface SymbolConstructor {
     /**
@@ -250,13 +252,15 @@ interface IterableIterator<T> extends Iterator<T> {
     // Generator functions found on GDScriptFunctionState
 
     is_valid(extended_check: boolean): boolean;
+
     resume(arg?: any): void;
 }
-// @ts-expect-error ...
+
+//@ts-ignore
 ${ArrayDefinition}
-// @ts-expect-error ...
+//@ts-ignore
 ${DictionaryDefinition}
-// @ts-expect-error ...
+//@ts-ignore
 ${PackedSceneDef}
 
 declare class Signal<T extends (...args: any[]) => any = () => void> {

@@ -1,0 +1,14 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1724333300
+default_env.tres::Environment::-1::1724333285::0::1::::<><>::
+icon.png::CompressedTexture2D::2096663399707102405::1724240583::1724333301::1::::<><>::
+Main.tscn::PackedScene::-1::1724333285::0::1::::<><>::
+ts2gd.json::JSON::-1::1724333002::0::1::::<><>::
+tsconfig.json::JSON::-1::1724240583::0::1::::<><>::
+::res://_godot_defs/::1724328045
+::res://_godot_defs/dynamic/::1724333071
+::res://_godot_defs/static/::1724328046
+::res://gd_src/::1724333072
+MyNode.gd::GDScript::-1::1724333285::0::1::::MyNode<>Node2D<>::
+::res://ignore_me/::1724240583
+::res://ts_src/::1724333102

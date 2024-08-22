@@ -35,23 +35,17 @@ export class TsGdProject {
 
     /** Each source file. */
     sourceFiles(): AssetSourceFile[] {
-        return this.assets.filter(
-            (a): a is AssetSourceFile => a instanceof AssetSourceFile,
-        );
+        return this.assets.filter((a): a is AssetSourceFile => a instanceof AssetSourceFile);
     }
 
     /** Each Godot scene. */
     godotScenes(): AssetGodotScene[] {
-        return this.assets.filter(
-            (a): a is AssetGodotScene => a instanceof AssetGodotScene,
-        );
+        return this.assets.filter((a): a is AssetGodotScene => a instanceof AssetGodotScene);
     }
 
     /** Each Godot font. */
     godotFonts(): AssetFont[] {
-        return this.assets.filter(
-            (a): a is AssetFont => a instanceof AssetFont,
-        );
+        return this.assets.filter((a): a is AssetFont => a instanceof AssetFont);
     }
 
     /** Each .glb file. */
@@ -61,9 +55,7 @@ export class TsGdProject {
 
     /** Each Godot image. */
     godotImages(): AssetImage[] {
-        return this.assets.filter(
-            (a): a is AssetImage => a instanceof AssetImage,
-        );
+        return this.assets.filter((a): a is AssetImage => a instanceof AssetImage);
     }
 
     mainScene: AssetGodotScene;
@@ -89,15 +81,11 @@ export class TsGdProject {
 
         // Parse assets
 
-        const projectGodot = initialFilePaths.filter((path) =>
-            path.includes("project.godot"),
-        )[0];
+        const projectGodot = initialFilePaths.filter((path) => path.includes("project.godot"))[0];
 
         this.godotProject = this.createAsset(projectGodot)! as GodotProjectFile;
 
-        const initialAssets = initialFilePaths.map((path) =>
-            this.createAsset(path),
-        );
+        const initialAssets = initialFilePaths.map((path) => this.createAsset(path));
 
         for (const asset of initialAssets) {
             if (asset === null) {
@@ -113,23 +101,12 @@ export class TsGdProject {
             }
         }
 
-        this.mainScene = this.godotScenes().find(
-            (scene) => scene.resPath === this.godotProject.mainScene().resPath,
-        )!;
+        this.mainScene = this.godotScenes().find((scene) => scene.resPath === this.godotProject.mainScene().resPath)!;
 
         this.monitor(watcher);
     }
 
-    createAsset(
-        path: string,
-    ):
-        | AssetSourceFile
-        | AssetGodotScene
-        | AssetFont
-        | AssetImage
-        | GodotProjectFile
-        | AssetGlb
-        | null {
+    createAsset(path: string): AssetSourceFile | AssetGodotScene | AssetFont | AssetImage | GodotProjectFile | AssetGlb | null {
         //TODO: move these checks to the asset classes in static methods
         if (path.endsWith(".ts")) {
             return new AssetSourceFile(path, this);
@@ -141,12 +118,7 @@ export class TsGdProject {
             return new AssetFont(path, this);
         } else if (path.endsWith(".glb")) {
             return new AssetGlb(path, this);
-        } else if (
-            path.endsWith(".png") ||
-            path.endsWith(".gif") ||
-            path.endsWith(".bmp") ||
-            path.endsWith(".jpg")
-        ) {
+        } else if (path.endsWith(".png") || path.endsWith(".gif") || path.endsWith(".bmp") || path.endsWith(".jpg")) {
             return new AssetImage(path, this);
         }
 
@@ -203,17 +175,13 @@ export class TsGdProject {
             if (!this.args.debug) console.clear();
 
             if (path.endsWith(".ts")) {
-                message = `${chalk.whiteBright("Compile:")} ${chalk.blueBright(
-                    path,
-                )}...`;
+                message = `${chalk.whiteBright("Compile:")} ${chalk.blueBright(path)}...`;
 
                 console.info(message);
 
                 showTime = true;
             } else {
-                message = `${chalk.whiteBright("Change:")} ${chalk.blueBright(
-                    path,
-                )}...`;
+                message = `${chalk.whiteBright("Change:")} ${chalk.blueBright(path)}...`;
 
                 console.info(message);
             }
@@ -229,9 +197,7 @@ export class TsGdProject {
             const allAutoloads = [...oldAutoloads, ...newAutoloads];
 
             for (const { resPath } of allAutoloads) {
-                const script = this.sourceFiles().find(
-                    (sf) => sf.resPath === resPath,
-                );
+                const script = this.sourceFiles().find((sf) => sf.resPath === resPath);
 
                 if (script) {
                     await script.compile(this.program);
@@ -290,12 +256,8 @@ export class TsGdProject {
      * @returns false if the compilation had errors, true otherwise
      */
     async compileAllSourceFiles(): Promise<boolean> {
-        const assetsToCompile = this.assets.filter(
-            (a): a is AssetSourceFile => a instanceof AssetSourceFile,
-        );
-        await Promise.all(
-            assetsToCompile.map((asset) => asset.compile(this.program)),
-        );
+        const assetsToCompile = this.assets.filter((a): a is AssetSourceFile => a instanceof AssetSourceFile);
+        await Promise.all(assetsToCompile.map((asset) => asset.compile(this.program)));
         return !displayErrors(this.args, "Compiling all source files...");
     }
 
@@ -338,9 +300,7 @@ export const makeTsGdProject = async (
     program: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>,
     args: ParsedArgs,
 ) => {
-    const [watcher, initialFiles] = await new Promise<
-        [chokidar.FSWatcher, string[]]
-    >((resolve) => {
+    const [watcher, initialFiles] = await new Promise<[chokidar.FSWatcher, string[]]>((resolve) => {
         const initialFiles: string[] = [];
         const watcher = chokidar
             .watch(ts2gdJson.rootPath, {

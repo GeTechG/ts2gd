@@ -30,6 +30,7 @@ export default tseslint.config(
                 "error",
                 {
                     tabWidth: 4,
+                    printWidth: 140
                 },
             ],
             "prefer-const": "off",

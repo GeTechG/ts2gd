@@ -2,11 +2,7 @@ import fs from "fs";
 
 import { parseStringPromise } from "xml2js";
 
-import {
-    formatJsDoc,
-    godotTypeToTsType,
-    sanitizeGodotNameForTs,
-} from "./generation_utils";
+import { formatJsDoc, godotTypeToTsType, sanitizeGodotNameForTs } from "./generation_utils";
 
 export type GodotXMLMethod = {
     $: {
@@ -128,9 +124,7 @@ export const parseMethod = (
     const param = method.param;
     const isVarArgs = method.$.qualifiers === "vararg";
     const docString = formatJsDoc(method.description[0].trim());
-    let returnType = godotTypeToTsType(
-        method.return?.[0]["$"].type ?? "Variant",
-    );
+    let returnType = godotTypeToTsType(method.return?.[0]["$"].type ?? "Variant");
     let paramsList = "";
 
     if (param || isVarArgs) {
@@ -201,9 +195,7 @@ export const generateGdscriptLib = async (path: string) => {
 
     const globalMethods: GodotXMLMethod[] = json.class.methods[0].method;
     const constants = (json.class.constants ?? [])[0]?.constant ?? [];
-    const parsedMethods = globalMethods.map((m) =>
-        parseMethod(m, { generateAsGlobals: true }),
-    );
+    const parsedMethods = globalMethods.map((m) => parseMethod(m, { generateAsGlobals: true }));
 
     for (const parsedMethod of parsedMethods) {
         if (parsedMethod.name === "load") {

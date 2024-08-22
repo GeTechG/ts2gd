@@ -5,22 +5,13 @@ import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 import { getGodotType } from "../ts_utils";
 
-import {
-    isDecoratedAsExportFlags,
-    isDecoratedAsExports,
-    parseExportFlags,
-    parseExports,
-} from "./parse_property_declaration";
+import { isDecoratedAsExportFlags, isDecoratedAsExports, parseExportFlags, parseExports } from "./parse_property_declaration";
 
-const getSettersAndGetters = (
-    members: readonly ts.ClassElement[],
-    props: ParseState,
-) => {
-    const setOrGetters = members.filter(
-        (member) =>
-            member.kind === SyntaxKind.SetAccessor ||
-            member.kind === SyntaxKind.GetAccessor,
-    ) as (ts.SetAccessorDeclaration | ts.GetAccessorDeclaration)[];
+const getSettersAndGetters = (members: readonly ts.ClassElement[], props: ParseState) => {
+    const setOrGetters = members.filter((member) => member.kind === SyntaxKind.SetAccessor || member.kind === SyntaxKind.GetAccessor) as (
+        | ts.SetAccessorDeclaration
+        | ts.GetAccessorDeclaration
+    )[];
 
     const pairings: {
         setter?: ts.SetAccessorDeclaration;
@@ -70,10 +61,7 @@ const getSettersAndGetters = (
     return pairings;
 };
 
-export const parseClassDeclaration = (
-    node: ts.ClassDeclaration | ts.ClassExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parseClassDeclaration = (node: ts.ClassDeclaration | ts.ClassExpression, props: ParseState): ParseNodeType => {
     const modifiers = node.modifiers?.map((x) => x.getText());
 
     // skip class declarations; there's no code to generate here
@@ -86,9 +74,7 @@ export const parseClassDeclaration = (
         });
     }
 
-    const isAutoload = !!ts
-        .getDecorators(node)
-        ?.find((dec) => dec.expression.getText() === "autoload");
+    const isAutoload = !!ts.getDecorators(node)?.find((dec) => dec.expression.getText() === "autoload");
 
     if (!modifiers?.includes("export") && !isAutoload) {
         addError({
@@ -103,9 +89,7 @@ export const parseClassDeclaration = (
     const settersAndGetters = getSettersAndGetters(node.members, props);
     const parsedSetterGetters = settersAndGetters
         .map(({ setter, getter, name, exportText }) => {
-            return `${exportText ?? ""}var ${name} setget ${
-                setter ? name + "_set" : ""
-            }, ${getter ? name + "_get" : ""}`;
+            return `${exportText ?? ""}var ${name} setget ${setter ? name + "_set" : ""}, ${getter ? name + "_get" : ""}`;
         })
         .join("\n");
 

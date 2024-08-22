@@ -10,18 +10,14 @@ const specialMethods = [
     { name: "_unhandled_key_input", args: "_event: InputEventKey" },
 ];
 
-export const parseMethodDeclaration = (
-    node: ts.MethodDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parseMethodDeclaration = (node: ts.MethodDeclaration, props: ParseState): ParseNodeType => {
     const funcName = node.name.getText();
 
     props.scope.enterScope();
 
     let isRemote = false;
     let isRemoteSync = false;
-    let isStatic =
-        node.modifiers?.some((v) => v.getText() === "static") ?? false;
+    let isStatic = node.modifiers?.some((v) => v.getText() === "static") ?? false;
 
     for (const dec of ts.getDecorators(node) ?? []) {
         if (dec.expression.getText() === "remote") {
@@ -49,30 +45,22 @@ export const parseMethodDeclaration = (
         parsedStrings: (body) => {
             let joinedParams = compiledParameters.content;
 
-            const specialMethod = specialMethods.find(
-                (method) => method.name === funcName,
-            );
+            const specialMethod = specialMethods.find((method) => method.name === funcName);
 
             if (specialMethod && joinedParams.trim() === "") {
                 joinedParams = specialMethod.args;
             }
 
-            let bodyLines = [
-                ...(compiledParameters.extraLines?.map((param) => param.line) ??
-                    []),
-                ...(body.trim() === "" ? [] : [body]),
-            ];
+            let bodyLines = [...(compiledParameters.extraLines?.map((param) => param.line) ?? []), ...(body.trim() === "" ? [] : [body])];
 
             if (bodyLines.length === 0) {
                 bodyLines = ["pass"];
             }
 
-            body = bodyLines.map((line) => "  " + line + "\n").join("");
+            body = bodyLines.map((line) => "\t" + line + "\n").join("");
 
             return `
-${isRemote ? "remote " : ""}${isRemoteSync ? "remotesync " : ""}${
-                isStatic ? "static " : ""
-            }func ${funcName}(${joinedParams}):
+${isRemote ? "remote " : ""}${isRemoteSync ? "remotesync " : ""}${isStatic ? "static " : ""}func ${funcName}(${joinedParams}):
 ${body.trim() === "" ? "pass" : body}
 `;
         },

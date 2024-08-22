@@ -250,14 +250,12 @@ declare class Dictionary<K, V> {
      * **Note:** Dictionaries with the same keys/values but in a different order will have a different hash.
      *
      */
-    // @ts-expect-error ...
     hash(): int;
 
     /** Returns the list of keys in the [Dictionary]. */
     keys(): K[];
 
     /** Returns the size of the dictionary (in pairs). */
-    // @ts-expect-error ...
     size(): int;
 
     /** Returns the list of values in the [Dictionary]. */

@@ -1,3 +1,4 @@
+// @ts-ignore
 declare class PackedScene<T> extends Resource {
     /** A simplified interface to a scene file. Provides access to operations and checks that can be performed on the scene resource itself.
      Can be used to save a node to a file. When saving, the node as well as all the node it owns get saved (see [code]owner[/code] property on [Node]).
@@ -36,12 +37,14 @@ declare class PackedScene<T> extends Resource {
 
     /** A dictionary representation of the scene contents.
      Available keys include "rnames" and "variants" for resources, "node_count", "nodes", "node_paths" for nodes, "editable_instances" for base scene children overrides, "conn_count" and "conns" for signal connections, and "version" for the format style of the PackedScene. */
+    // @ts-ignore
     _bundled: Dictionary<any, any>;
 
     /** Returns [code]true[/code] if the scene file has nodes. */
     can_instance(): boolean;
 
     /** Returns the [code]SceneState[/code] representing the scene file contents. */
+    // @ts-ignore
     get_state(): SceneState;
 
     /** Instantiates the scene's node hierarchy. Triggers child scene instantiation(s). Triggers a [constant Node.NOTIFICATION_INSTANCED] notification on the root node. */
