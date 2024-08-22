@@ -15,6 +15,7 @@ export default tseslint.config(
             "tsconfig.json",
             "package.json",
             "package-lock.json",
+            "**/generate_library_defs/custom_defs/**"
         ],
     },
     eslint.configs.recommended,

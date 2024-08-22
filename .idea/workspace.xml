@@ -5,9 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/generate_library_defs/custom_defs/array_def.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generate_library_defs/custom_defs/base_def.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generate_library_defs/custom_defs/dictionary_def.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generate_library_defs/custom_defs/packed_scene_def.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.prettierignore" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/custom_defs/array_def.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/custom_defs/dictionary_def.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/custom_defs/packed_scene_def.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_library_defs/generate_bases.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/generate_bases.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,23 +36,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/sergey/Documents/ts2gd",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "npm.generate-defs.executor": "Run",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
-    "ts.external.directory.path": "/home/sergey/Documents/ts2gd/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/sergey/Documents/ts2gd&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.generate-defs.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/sergey/Documents/ts2gd/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="generate-defs" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -94,17 +104,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/generate_library_defs/library_builder.ts</url>
-          <line>110</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

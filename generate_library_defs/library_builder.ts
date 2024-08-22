@@ -356,6 +356,10 @@ ${specialConstructorType}
                 continue;
             }
 
+            if (fileName === "Signal.xml") {
+                continue;
+            }
+
             const result = await this.parseFile(fullPath, singletons);
 
             fs.writeFileSync(
