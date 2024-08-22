@@ -1,32 +1,15 @@
 import ts from "typescript";
 
-import {
-    ExtraLine,
-    ExtraLineType,
-    ParseState,
-    combine,
-    ParseNodeType,
-} from "../parse_node";
+import { ExtraLine, ExtraLineType, ParseState, combine, ParseNodeType } from "../parse_node";
 import { Test } from "../tests/test";
 import { getGodotType } from "../ts_utils";
 
 const magic = `"[no value passed in]"`;
 
-export const parseParameter = (
-    node: ts.ParameterDeclaration,
-    props: ParseState,
-): ParseNodeType => {
-    const type = getGodotType(
-        node,
-        props.program.getTypeChecker().getTypeAtLocation(node),
-        props,
-        false,
-        node.initializer,
-        node.type,
-    );
+export const parseParameter = (node: ts.ParameterDeclaration, props: ParseState): ParseNodeType => {
+    const type = getGodotType(node, props.program.getTypeChecker().getTypeAtLocation(node), props, false, node.initializer, node.type);
     const usages = props.usages.get(node.name as ts.Identifier);
-    const unusedPrefix =
-        usages?.uses.length === 0 && !node.initializer ? "_" : "";
+    const unusedPrefix = usages?.uses.length === 0 && !node.initializer ? "_" : "";
     const typeString = type ? `: ${type}` : "";
 
     props.scope.addName(node.name);
@@ -55,9 +38,7 @@ export const parseParameter = (
                 return `${name}${initializer ? ` = ${magic}` : ""}`;
             }
 
-            return `${unusedPrefix}${name}${typeString}${
-                initializer ? " = null" : ""
-            }`;
+            return `${unusedPrefix}${name}${typeString}${initializer ? " = null" : ""}`;
         },
     });
 

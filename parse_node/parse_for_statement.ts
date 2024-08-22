@@ -1,17 +1,9 @@
 import ts from "typescript";
 
-import {
-    ExtraLineType,
-    ParseState,
-    combine,
-    ParseNodeType,
-} from "../parse_node";
+import { ExtraLineType, ParseState, combine, ParseNodeType } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseForStatement = (
-    node: ts.ForStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseForStatement = (node: ts.ForStatement, props: ParseState): ParseNodeType => {
     props = { ...props, mostRecentControlStructureIsSwitch: false };
 
     // Add initializer to current scope BEFORE entering new scope
@@ -34,11 +26,7 @@ export const parseForStatement = (
 
     let incrementText =
         increment.extraLines
-            ?.filter(
-                (line) =>
-                    line.lineType === ExtraLineType.Decrement ||
-                    line.lineType === ExtraLineType.Increment,
-            )
+            ?.filter((line) => line.lineType === ExtraLineType.Decrement || line.lineType === ExtraLineType.Increment)
             .map((line) => line.line) ?? [];
 
     props.mostRecentForStatement = {
@@ -51,10 +39,7 @@ export const parseForStatement = (
         nodes: [node.condition, node.statement],
         props,
         parsedStrings: (cond, statement) => {
-            if (
-                statement.trim().length === 0 &&
-                increment.content.trim().length === 0
-            ) {
+            if (statement.trim().length === 0 && increment.content.trim().length === 0) {
                 statement = "pass";
             }
 

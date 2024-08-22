@@ -1,10 +1,7 @@
 import ts, { SyntaxKind } from "typescript";
 
 export class Scope {
-    namesInScope: [
-        ts.BindingName | ts.ParameterDeclaration | undefined,
-        string,
-    ][][] = [[]];
+    namesInScope: [ts.BindingName | ts.ParameterDeclaration | undefined, string][][] = [[]];
     program: ts.Program;
 
     constructor(program: ts.Program) {
@@ -29,9 +26,7 @@ export class Scope {
                     continue;
                 }
 
-                const theirSymbol = this.program
-                    .getTypeChecker()
-                    .getSymbolAtLocation(otherNode);
+                const theirSymbol = this.program.getTypeChecker().getSymbolAtLocation(otherNode);
 
                 if (ourSymbol === theirSymbol) {
                     return name;

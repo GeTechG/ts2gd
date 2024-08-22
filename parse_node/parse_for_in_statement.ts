@@ -3,10 +3,7 @@ import ts, { SyntaxKind } from "typescript";
 import { ParseState, combine, ParseNodeType } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseForInStatement = (
-    node: ts.ForInStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseForInStatement = (node: ts.ForInStatement, props: ParseState): ParseNodeType => {
     let result: ParseNodeType;
 
     props.scope.enterScope();

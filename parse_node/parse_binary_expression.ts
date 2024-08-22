@@ -3,12 +3,8 @@ import ts, { SyntaxKind } from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseBinaryExpression = (
-    node: ts.BinaryExpression,
-    props: ParseState,
-): ParseNodeType => {
-    const needsLeftHandSpace =
-        node.operatorToken.kind !== SyntaxKind.CommaToken;
+export const parseBinaryExpression = (node: ts.BinaryExpression, props: ParseState): ParseNodeType => {
+    const needsLeftHandSpace = node.operatorToken.kind !== SyntaxKind.CommaToken;
 
     // We need to rewrite things like dict.a = foo into dict['a'] = foo
     // if (node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
@@ -69,9 +65,7 @@ export const parseBinaryExpression = (
                 }
             }
 
-            return `${left}${
-                needsLeftHandSpace ? " " : ""
-            }${operatorToken} ${right}`;
+            return `${left}${needsLeftHandSpace ? " " : ""}${operatorToken} ${right}`;
         },
     });
 };

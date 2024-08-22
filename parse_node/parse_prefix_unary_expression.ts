@@ -1,20 +1,10 @@
 import ts from "typescript";
 
-import {
-    ExtraLine,
-    ExtraLineType,
-    ParseState,
-    combine,
-    parseNode,
-    ParseNodeType,
-} from "../parse_node";
+import { ExtraLine, ExtraLineType, ParseState, combine, parseNode, ParseNodeType } from "../parse_node";
 import { Test } from "../tests/test";
 const { SyntaxKind } = ts;
 
-export const parsePrefixUnaryExpression = (
-    node: ts.PrefixUnaryExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parsePrefixUnaryExpression = (node: ts.PrefixUnaryExpression, props: ParseState): ParseNodeType => {
     let newIncrements: ExtraLine | null = null;
 
     const result = combine({
@@ -30,9 +20,7 @@ export const parsePrefixUnaryExpression = (
                         lineType: ExtraLineType.Increment,
                     };
 
-                    return node.parent.kind === SyntaxKind.ExpressionStatement
-                        ? ""
-                        : operand;
+                    return node.parent.kind === SyntaxKind.ExpressionStatement ? "" : operand;
                 }
                 case SyntaxKind.MinusMinusToken: {
                     newIncrements = {
@@ -41,9 +29,7 @@ export const parsePrefixUnaryExpression = (
                         lineType: ExtraLineType.Decrement,
                     };
 
-                    return node.parent.kind === SyntaxKind.ExpressionStatement
-                        ? ""
-                        : operand;
+                    return node.parent.kind === SyntaxKind.ExpressionStatement ? "" : operand;
                 }
                 case SyntaxKind.PlusToken:
                     return `+${operand}`;
@@ -58,10 +44,7 @@ export const parsePrefixUnaryExpression = (
         },
     });
 
-    result.extraLines = [
-        ...(newIncrements ? [newIncrements] : []),
-        ...(result.extraLines ?? []),
-    ];
+    result.extraLines = [...(newIncrements ? [newIncrements] : []), ...(result.extraLines ?? [])];
 
     return result;
 };

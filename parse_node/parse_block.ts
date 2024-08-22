@@ -2,10 +2,7 @@ import ts from "typescript";
 
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 
-export const parseBlock = (
-    node: ts.Block,
-    props: ParseState,
-): ParseNodeType => {
+export const parseBlock = (node: ts.Block, props: ParseState): ParseNodeType => {
     /**
      * The reason we can't `pass` here if node.statements.length === 0 is because
      * a default parameter could add extraLines, which means that the function

@@ -16,21 +16,9 @@ import { createStubSourceFileAsset } from "./stubs";
 export const compileTs = (code: string, isAutoload: boolean): ParseNodeType => {
     const filename = isAutoload ? "autoload.ts" : "Test.ts";
 
-    const sourceFile = ts.createSourceFile(
-        filename,
-        code,
-        ts.ScriptTarget.Latest,
-        true,
-        ts.ScriptKind.TS,
-    );
+    const sourceFile = ts.createSourceFile(filename, code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 
-    const libDTs = ts.createSourceFile(
-        "lib.d.ts",
-        baseContentForTests(),
-        ts.ScriptTarget.Latest,
-        true,
-        ts.ScriptKind.TS,
-    );
+    const libDTs = ts.createSourceFile("lib.d.ts", baseContentForTests(), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
 
     const tsconfigOptions: ts.CompilerOptions = {
         strict: true,
@@ -62,11 +50,7 @@ export const compileTs = (code: string, isAutoload: boolean): ParseNodeType => {
         },
     };
 
-    const program = ts.createProgram(
-        ["Test.ts", "autoload.ts"],
-        tsconfigOptions,
-        customCompilerHost,
-    );
+    const program = ts.createProgram(["Test.ts", "autoload.ts"], tsconfigOptions, customCompilerHost);
 
     const sourceFileAsset = createStubSourceFileAsset("Test");
 
@@ -209,12 +193,7 @@ const areOutputsEqual = (left: string, right: string) => {
     return leftTrimmed === rightTrimmed;
 };
 
-const test = (
-    props: Test,
-    name: string,
-    testFileName: string,
-    path: string,
-): TestResult => {
+const test = (props: Test, name: string, testFileName: string, path: string): TestResult => {
     const { ts, expected } = props;
 
     let compiled: ParseNodeType | null = null;
@@ -243,9 +222,7 @@ const test = (
                 return {
                     type: "fail-error",
                     result: "",
-                    expected: `Got more than one error but expected one:\n\n${errors
-                        .map((err) => err.description)
-                        .join("\n")}`,
+                    expected: `Got more than one error but expected one:\n\n${errors.map((err) => err.description).join("\n")}`,
                     name,
                     expectFail: props.expectFail ?? false,
                     path,
@@ -291,13 +268,8 @@ ${errors[0].description}
         if (expected.files.length !== compiled.files?.length) {
             return {
                 type: "fail",
-                result:
-                    compiled.files
-                        ?.map(({ filePath: fileName }) => fileName)
-                        .join(", ") ?? "[no files]",
-                expected: expected.files
-                    .map(({ fileName }) => fileName)
-                    .join(", "),
+                result: compiled.files?.map(({ filePath: fileName }) => fileName).join(", ") ?? "[no files]",
+                expected: expected.files.map(({ fileName }) => fileName).join(", "),
                 name,
                 expectFail: props.expectFail ?? false,
                 path,
@@ -309,9 +281,7 @@ ${errors[0].description}
 
             for (const actualFile of compiled.files ?? []) {
                 if (actualFile.filePath === expectedFile.fileName) {
-                    if (
-                        !areOutputsEqual(actualFile.body, expectedFile.expected)
-                    ) {
+                    if (!areOutputsEqual(actualFile.body, expectedFile.expected)) {
                         return {
                             type: "fail",
                             fileName: actualFile.filePath,
@@ -330,9 +300,7 @@ ${errors[0].description}
             if (!found) {
                 return {
                     type: "fail",
-                    result: `No file named ${
-                        expectedFile.fileName
-                    } was written.\n\nWritten files: ${compiled.files
+                    result: `No file named ${expectedFile.fileName} was written.\n\nWritten files: ${compiled.files
                         ?.map((f) => f.filePath)
                         .join(", ")}`,
                     expected: "",
@@ -402,10 +370,7 @@ export const runTests = async () => {
         }
     }
 
-    tests =
-        tests.filter((t) => t.only).length > 0
-            ? tests.filter((t) => t.only)
-            : tests;
+    tests = tests.filter((t) => t.only).length > 0 ? tests.filter((t) => t.only) : tests;
 
     const failures: TestResultFail[] = [];
     const start = new Date().getTime();
@@ -416,20 +381,11 @@ export const runTests = async () => {
         const logged: any[][] = [];
         const oldConsoleLog = console.log;
         console.log = (...args: any[]) => logged.push(args);
-        const result = test(
-            testObj,
-            testObj.testName,
-            testObj.fileName,
-            testObj.path,
-        );
+        const result = test(testObj, testObj.testName, testObj.fileName, testObj.path);
         console.log = oldConsoleLog;
 
         total++;
-        if (
-            result.type === "fail" ||
-            result.type === "fail-error" ||
-            result.type === "fail-no-error"
-        ) {
+        if (result.type === "fail" || result.type === "fail-error" || result.type === "fail-no-error") {
             result.logs = logged;
             failures.push(result);
         }
@@ -438,39 +394,21 @@ export const runTests = async () => {
     const elapsed = (new Date().getTime() - start) / 1000 + "s";
 
     if (failures.length === 0) {
-        console.info(
-            `All ${total} tests ` + chalk.green(`passed`) + ` in ${elapsed}!`,
-        );
-    } else if (
-        failures.length > 0 &&
-        failures.filter((x) => x.expectFail).length === failures.length
-    ) {
+        console.info(`All ${total} tests ` + chalk.green(`passed`) + ` in ${elapsed}!`);
+    } else if (failures.length > 0 && failures.filter((x) => x.expectFail).length === failures.length) {
         console.info(total, "tests passed, in", elapsed);
         console.info("\nSome failed, but they were expected to fail:");
         console.info(failures.map((f) => "  " + f.name).join("\n"));
     } else {
-        for (let {
-            expected,
-            name,
-            result,
-            logs,
-            path,
-            type,
-            fileName,
-        } of failures.filter((x) => !x.expectFail)) {
+        for (let { expected, name, result, logs, path, type, fileName } of failures.filter((x) => !x.expectFail)) {
             const fileContents = fs.readFileSync(path, "utf-8");
             const lines = fileContents.split("\n");
             // Take a guess at line
-            let line =
-                (lines.findIndex((l) => l.includes(`export const ${name}`)) ??
-                    -1) + 1;
+            let line = (lines.findIndex((l) => l.includes(`export const ${name}`)) ?? -1) + 1;
 
             console.info("=============================================");
             console.info(name, "failed:");
-            console.info(
-                `  in`,
-                chalk.yellowBright(`${path}${line ? `:${line}:0` : ``}`),
-            );
+            console.info(`  in`, chalk.yellowBright(`${path}${line ? `:${line}:0` : ``}`));
             console.info("=============================================\n");
 
             if (type === "fail-error") {
@@ -479,9 +417,7 @@ export const runTests = async () => {
                 console.info(expected + "\n");
             } else {
                 if (fileName) {
-                    console.info(
-                        `${chalk.red("Expected")} (In file ${fileName}):`,
-                    );
+                    console.info(`${chalk.red("Expected")} (In file ${fileName}):`);
                 } else {
                     console.info(`${chalk.red("Expected")}`);
                 }
@@ -527,13 +463,7 @@ export const runTests = async () => {
         const failureCount = failures.filter((x) => !x.expectFail).length;
 
         console.info("\n");
-        console.info(
-            "Failed",
-            failureCount,
-            failureCount > 1 ? "tests" : "test",
-            "in",
-            elapsed,
-        );
+        console.info("Failed", failureCount, failureCount > 1 ? "tests" : "test", "in", elapsed);
         process.exit(failureCount > 0 ? -1 : 0);
     }
 };

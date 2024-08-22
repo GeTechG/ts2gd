@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseIfStatement = (
-    node: ts.IfStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseIfStatement = (node: ts.IfStatement, props: ParseState): ParseNodeType => {
     props.scope.enterScope();
 
     let result = combine({
@@ -15,25 +12,15 @@ export const parseIfStatement = (
         nodes: [node.expression, node.thenStatement, node.elseStatement],
         props,
         parsedObjs: (expression, thenStatement, elseStatement) => {
-            const beforeLines =
-                expression.extraLines?.filter(
-                    (line) => line.type === "before",
-                ) ?? [];
-            const afterLines =
-                expression.extraLines?.filter(
-                    (line) => line.type === "after",
-                ) ?? [];
+            const beforeLines = expression.extraLines?.filter((line) => line.type === "before") ?? [];
+            const afterLines = expression.extraLines?.filter((line) => line.type === "after") ?? [];
 
             let thenBody =
                 afterLines.map(({ line }) => "  " + line + "\n") +
-                (thenStatement.content.trim() === ""
-                    ? ""
-                    : "  " + thenStatement.content);
+                (thenStatement.content.trim() === "" ? "" : "  " + thenStatement.content);
             let elseBody =
                 afterLines.map(({ line }) => "  " + line + "\n") +
-                (elseStatement.content.trim() === ""
-                    ? ""
-                    : "  " + elseStatement.content);
+                (elseStatement.content.trim() === "" ? "" : "  " + elseStatement.content);
 
             if (thenBody.trim() === "") {
                 thenBody = "  pass";

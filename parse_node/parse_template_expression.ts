@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseTemplateExpression = (
-    node: ts.TemplateExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parseTemplateExpression = (node: ts.TemplateExpression, props: ParseState): ParseNodeType => {
     const sanitizeText = (text: string) => {
         return text.replaceAll("\n", "\\n");
     };
@@ -22,10 +19,7 @@ export const parseTemplateExpression = (
 
             for (let i = 0; i < exprs.length; i++) {
                 result += ` + str(${exprs[i]})`;
-                result +=
-                    ' + "' +
-                    sanitizeText(node.templateSpans[i].literal.text) +
-                    '"';
+                result += ' + "' + sanitizeText(node.templateSpans[i].literal.text) + '"';
             }
 
             return result;

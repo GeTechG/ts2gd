@@ -24,10 +24,7 @@ const getFreeVariables = (
         return [];
     }
 
-    if (
-        node.kind === SyntaxKind.Identifier ||
-        node.kind === SyntaxKind.PropertyAccessExpression
-    ) {
+    if (node.kind === SyntaxKind.Identifier || node.kind === SyntaxKind.PropertyAccessExpression) {
         // In cases like "a.b.c", only return "a".
         while (node.kind === SyntaxKind.PropertyAccessExpression) {
             const pae = node as ts.PropertyAccessExpression;
@@ -101,10 +98,7 @@ export const getCapturedScope = (
 } => {
     const freeVariables = getFreeVariables(node.body, node, props);
     const uniqueFreeVariables = freeVariables.filter(
-        (item, index) =>
-            freeVariables.findIndex(
-                (obj) => obj.getText() === item.getText(),
-            ) === index,
+        (item, index) => freeVariables.findIndex((obj) => obj.getText() === item.getText()) === index,
     );
 
     // We don't want to capture `this` as part of our scope. There's no reason to
@@ -112,9 +106,7 @@ export const getCapturedScope = (
     // never be different. Plus, we'd have to rewrite all `this` access in the
     // function to be `_self`, which would be confusing, and look stupid, and
     // basically be a completely pointless workaround.
-    const freeVariablesWithoutThis = uniqueFreeVariables.filter(
-        (v) => v.getText() !== "this",
-    );
+    const freeVariablesWithoutThis = uniqueFreeVariables.filter((v) => v.getText() !== "this");
 
     const getNodeName = (node: ts.Node) => {
         const text = node.getText();
@@ -123,18 +115,9 @@ export const getCapturedScope = (
     };
 
     const capturedScopeObject =
-        "{" +
-        freeVariablesWithoutThis
-            .map(
-                (freeVar) =>
-                    `"${getNodeName(freeVar)}": ${getNodeName(freeVar)}`,
-            )
-            .join(", ") +
-        "}";
+        "{" + freeVariablesWithoutThis.map((freeVar) => `"${getNodeName(freeVar)}": ${getNodeName(freeVar)}`).join(", ") + "}";
 
-    const unwrapCapturedScope = freeVariablesWithoutThis
-        .map((v) => `  var ${getNodeName(v)} = captures.${getNodeName(v)}\n`)
-        .join("");
+    const unwrapCapturedScope = freeVariablesWithoutThis.map((v) => `  var ${getNodeName(v)} = captures.${getNodeName(v)}\n`).join("");
 
     return {
         capturedScopeObject,
@@ -147,10 +130,7 @@ export const getCapturedScope = (
 // function, we were just passing in captured variables as a second argument,
 // but this gets messy and complicated when we pass function arguments through
 // multiple functions.)
-export const parseArrowFunction = (
-    node: ts.ArrowFunction,
-    props: ParseState,
-): ParseNodeType => {
+export const parseArrowFunction = (node: ts.ArrowFunction, props: ParseState): ParseNodeType => {
     const name = props.scope.createUniqueName();
 
     const { unwrapCapturedScope } = getCapturedScope(node, props);
@@ -183,8 +163,7 @@ ${unwrapCapturedScope}
 
     props.scope.leaveScope();
 
-    const decls = props.program.getTypeChecker().getTypeAtLocation(node)
-        .symbol?.declarations;
+    const decls = props.program.getTypeChecker().getTypeAtLocation(node).symbol?.declarations;
 
     if (!decls) {
         addError({
@@ -197,10 +176,7 @@ Declaration not provided for arrow function. This is an internal ts2gd bug. Plea
         });
     }
 
-    const capturedScopeObject = decls
-        ? getCapturedScope(decls[0] as ts.ArrowFunction, props)
-              .capturedScopeObject
-        : "{}";
+    const capturedScopeObject = decls ? getCapturedScope(decls[0] as ts.ArrowFunction, props).capturedScopeObject : "{}";
 
     // NOTE: parse_call_expression expects all arrow functions to be declared on self.
     return {

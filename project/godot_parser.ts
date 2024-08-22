@@ -17,9 +17,7 @@ export const parseGodotConfigFile = (path: string, initial: any = {}) => {
 
         if (expected) {
             if (expected !== x) {
-                throw new Error(
-                    `Expected ${expected} but got ${x} at ${getLineAndCol()}`,
-                );
+                throw new Error(`Expected ${expected} but got ${x} at ${getLineAndCol()}`);
             }
         }
 
@@ -57,10 +55,7 @@ export const parseGodotConfigFile = (path: string, initial: any = {}) => {
     const peekchar = () => {
         let nextNonemptyIndex = index;
 
-        while (
-            nextNonemptyIndex < file.length &&
-            file[nextNonemptyIndex].trim() === ""
-        ) {
+        while (nextNonemptyIndex < file.length && file[nextNonemptyIndex].trim() === "") {
             ++nextNonemptyIndex;
         }
 
@@ -74,10 +69,7 @@ export const parseGodotConfigFile = (path: string, initial: any = {}) => {
     const eof = () => {
         let nextNonemptyIndex = index;
 
-        while (
-            nextNonemptyIndex < file.length &&
-            file[nextNonemptyIndex].trim() === ""
-        ) {
+        while (nextNonemptyIndex < file.length && file[nextNonemptyIndex].trim() === "") {
             ++nextNonemptyIndex;
 
             if (nextNonemptyIndex >= file.length) return true;
@@ -109,9 +101,7 @@ export const parseGodotConfigFile = (path: string, initial: any = {}) => {
             const key = getIdentifier();
 
             if (peekchar() !== "=") {
-                throw new Error(
-                    `Unexpected token '${peekchar()}' in section after ${key} at ${getLineAndCol()}\nIn ${path}`,
-                );
+                throw new Error(`Unexpected token '${peekchar()}' in section after ${key} at ${getLineAndCol()}\nIn ${path}`);
             }
 
             getchar("=");
@@ -308,19 +298,14 @@ export const parseGodotConfigFile = (path: string, initial: any = {}) => {
                 let variableValue = getValue();
 
                 if (Array.isArray(result[currentSection.identifier])) {
-                    result[currentSection.identifier][
-                        result[currentSection.identifier].length - 1
-                    ][variableName] = variableValue;
+                    result[currentSection.identifier][result[currentSection.identifier].length - 1][variableName] = variableValue;
                 } else {
-                    result[currentSection.identifier][variableName] =
-                        variableValue;
+                    result[currentSection.identifier][variableName] = variableValue;
                 }
             }
         }
     } catch (e) {
-        console.error(
-            `Failed to parse godot config file ${path}. This is a bug.`,
-        );
+        console.error(`Failed to parse godot config file ${path}. This is a bug.`);
         console.info(util.inspect(result, false, 10, true));
 
         throw e;

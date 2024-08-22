@@ -3,10 +3,7 @@ import ts, { SyntaxKind } from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseEmptyStatement = (
-    node: ts.EmptyStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseEmptyStatement = (node: ts.EmptyStatement, props: ParseState): ParseNodeType => {
     if (
         node.parent.kind === SyntaxKind.WhileStatement ||
         node.parent.kind === SyntaxKind.ForInStatement ||

@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseBreakStatement = (
-    node: ts.BreakStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseBreakStatement = (node: ts.BreakStatement, props: ParseState): ParseNodeType => {
     if (props.mostRecentControlStructureIsSwitch) {
         return combine({
             parent: node,

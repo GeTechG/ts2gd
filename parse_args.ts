@@ -49,17 +49,11 @@ export const parseArgs = (): ParsedArgs => {
 export const printHelp = () => {
     console.info();
     console.info("Arguments:");
-    console.info(
-        "--buildLibraries    Force ts2gd to regenerate the TypeScript definitions for Godot.",
-    );
-    console.info(
-        "--buildOnly         Compiles the project to TypeScript and immediately exits.",
-    );
+    console.info("--buildLibraries    Force ts2gd to regenerate the TypeScript definitions for Godot.");
+    console.info("--buildOnly         Compiles the project to TypeScript and immediately exits.");
     console.info("--init              Initialize a ts2gd project here.");
     console.info("--help              Print this help.");
     console.info();
     console.info();
-    console.info(
-        "See README on GitHub for much more detail: https://github.com/johnfn/ts2gd",
-    );
+    console.info("See README on GitHub for much more detail: https://github.com/johnfn/ts2gd");
 };

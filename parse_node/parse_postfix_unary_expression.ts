@@ -1,20 +1,11 @@
 import ts from "typescript";
 
-import {
-    ExtraLine,
-    ExtraLineType,
-    ParseState,
-    combine,
-    ParseNodeType,
-} from "../parse_node";
+import { ExtraLine, ExtraLineType, ParseState, combine, ParseNodeType } from "../parse_node";
 import { Test } from "../tests/test";
 import { syntaxKindToString } from "../ts_utils";
 const { SyntaxKind } = ts;
 
-export const parsePostfixUnaryExpression = (
-    node: ts.PostfixUnaryExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parsePostfixUnaryExpression = (node: ts.PostfixUnaryExpression, props: ParseState): ParseNodeType => {
     let newIncrements: ExtraLine | null = null;
 
     const result = combine({
@@ -48,10 +39,7 @@ export const parsePostfixUnaryExpression = (
         },
     });
 
-    result.extraLines = [
-        ...(newIncrements ? [newIncrements] : []),
-        ...(result.extraLines ?? []),
-    ];
+    result.extraLines = [...(newIncrements ? [newIncrements] : []), ...(result.extraLines ?? [])];
 
     return result;
 };

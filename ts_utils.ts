@@ -10,23 +10,11 @@ import { ErrorName, addError } from "./errors";
 export const isNullableNode = (node: ts.Node, typechecker: ts.TypeChecker) => {
     const type = typechecker.getTypeAtLocation(node);
 
-    return (
-        type.isUnion() &&
-        type.types.find(
-            (type) =>
-                type.flags & TypeFlags.Null || type.flags & TypeFlags.Undefined,
-        )
-    );
+    return type.isUnion() && type.types.find((type) => type.flags & TypeFlags.Null || type.flags & TypeFlags.Undefined);
 };
 
 export const isNullableType = (type: ts.Type) => {
-    return (
-        type.isUnion() &&
-        type.types.find(
-            (type) =>
-                type.flags & TypeFlags.Null || type.flags & TypeFlags.Undefined,
-        )
-    );
+    return type.isUnion() && type.types.find((type) => type.flags & TypeFlags.Null || type.flags & TypeFlags.Undefined);
 };
 
 /**
@@ -37,10 +25,7 @@ export const getTypeHierarchy = (type: ts.Type): ts.Type[] => {
     if (type.isClass()) {
         const baseTypes = type.getBaseTypes() ?? [];
 
-        return [
-            ...baseTypes,
-            ...baseTypes.flatMap((type) => getTypeHierarchy(type)),
-        ];
+        return [...baseTypes, ...baseTypes.flatMap((type) => getTypeHierarchy(type))];
     }
 
     return [];
@@ -81,10 +66,7 @@ export const isDictionary = (type: ts.Type): boolean => {
     return false;
 };
 
-export const generatePrecedingNewlines = (
-    node: ts.Node,
-    fullText: string,
-): string => {
+export const generatePrecedingNewlines = (node: ts.Node, fullText: string): string => {
     let numNewlines = 0;
 
     for (const ch of [...fullText]) {
@@ -127,10 +109,7 @@ export function isEnumType(type: ts.Type) {
     }
 
     const { valueDeclaration } = symbol;
-    return (
-        valueDeclaration != null &&
-        valueDeclaration.kind === ts.SyntaxKind.EnumDeclaration
-    );
+    return valueDeclaration != null && valueDeclaration.kind === ts.SyntaxKind.EnumDeclaration;
 }
 
 export const syntaxKindToString = (kind: ts.Node["kind"]) => {
@@ -170,17 +149,12 @@ export function getGodotType(
     if (actualType) {
         tsTypeName = actualType.getText();
     } else {
-        tsTypeName = props.program
-            .getTypeChecker()
-            .typeToString(typecheckerInferredType);
+        tsTypeName = props.program.getTypeChecker().typeToString(typecheckerInferredType);
     }
 
     if (tsTypeName === "number") {
         if (initializer) {
-            let preciseInitializerType = getPreciseInitializerType(
-                initializer,
-                initializer.getText(),
-            );
+            let preciseInitializerType = getPreciseInitializerType(initializer, initializer.getText());
 
             if (preciseInitializerType) {
                 return preciseInitializerType;
@@ -197,9 +171,7 @@ ${chalk.yellow(node.getText())}
 
 with either "int" or "float".`;
         } else {
-            errorString = `Please annotate ${chalk.yellow(
-                node.getText(),
-            )} with either "int" or "float".`;
+            errorString = `Please annotate ${chalk.yellow(node.getText())} with either "int" or "float".`;
         }
 
         addError({
@@ -269,10 +241,7 @@ ${chalk.yellow(node.getText())}
 
         if (typecheckerInferredType.isUnion()) {
             nonNullTypes = typecheckerInferredType.types.filter((type) => {
-                return !(
-                    type.flags & TypeFlags.Null ||
-                    type.flags & TypeFlags.Undefined
-                );
+                return !(type.flags & TypeFlags.Null || type.flags & TypeFlags.Undefined);
             });
 
             if (actualType.kind === SyntaxKind.UnionType) {
@@ -282,10 +251,7 @@ ${chalk.yellow(node.getText())}
                     if (typeNode.kind === SyntaxKind.LiteralType) {
                         const litType = typeNode as ts.LiteralTypeNode;
 
-                        return !(
-                            litType.literal.kind === SyntaxKind.NullKeyword ||
-                            litType.literal.kind === SyntaxKind.UndefinedKeyword
-                        );
+                        return !(litType.literal.kind === SyntaxKind.NullKeyword || litType.literal.kind === SyntaxKind.UndefinedKeyword);
                     }
 
                     // Apparently `undefined` is just a keyword, whereas null is a
@@ -312,14 +278,7 @@ ${chalk.yellow(node.getText())}
                 return null;
             }
 
-            return getGodotType(
-                node,
-                nonNullTypes[0],
-                props,
-                isExport,
-                initializer,
-                nonNullTypeNodes[0],
-            );
+            return getGodotType(node, nonNullTypes[0], props, isExport, initializer, nonNullTypeNodes[0]);
         }
     }
 
@@ -343,9 +302,7 @@ ${chalk.yellow(node.getText())}
     return actualType.getText();
 }
 
-export function notEmpty<TValue>(
-    value: (TValue | null | undefined)[],
-): TValue[] {
+export function notEmpty<TValue>(value: (TValue | null | undefined)[]): TValue[] {
     return value.filter((x) => x !== undefined && x !== null) as TValue[];
 }
 
@@ -359,18 +316,14 @@ export function notEmpty<TValue>(
  * TypeScript will infer both of those to be type "number", but we want to be able to say
  * that the first one is a "float" and the second one is an "int".
  */
-export function getPreciseInitializerType(
-    initializer: ts.Expression | undefined,
-    initStr: string,
-): string | undefined {
+export function getPreciseInitializerType(initializer: ts.Expression | undefined, initStr: string): string | undefined {
     if (!initializer) {
         return "";
     }
 
     // attempt to figure out from the literal type whether this is a int or a float.
     let isInt = !!initStr.match(/^[0-9]+$/);
-    let isFloat =
-        !!initStr.match(/^([0-9]+)?\.([0-9]+)?$/) && initStr.length > 1;
+    let isFloat = !!initStr.match(/^([0-9]+)?\.([0-9]+)?$/) && initStr.length > 1;
 
     if (isInt) {
         return "int";
@@ -419,17 +372,12 @@ export function copyFolderRecursiveSync(source: string, target: string) {
     }
 }
 
-export const getCommonElements = <T>(
-    lists: T[][],
-    eq: (a: T, b: T) => boolean,
-) => {
+export const getCommonElements = <T>(lists: T[][], eq: (a: T, b: T) => boolean) => {
     if (lists.length === 0) {
         return [];
     }
 
-    return lists[0].filter((elem) =>
-        lists.every((list) => list.find((listElem) => eq(listElem, elem))),
-    );
+    return lists[0].filter((elem) => lists.every((list) => list.find((listElem) => eq(listElem, elem))));
 };
 
 export const getTimestamp = () => {
@@ -451,14 +399,8 @@ export const getTimestamp = () => {
     return `[${h}:${m}:${s}]`;
 };
 
-export const findContainingClassDeclaration = (
-    node: ts.Node,
-): ts.ClassDeclaration | null => {
-    while (
-        !ts.isClassDeclaration(node) &&
-        !ts.isSourceFile(node) &&
-        node.parent
-    ) {
+export const findContainingClassDeclaration = (node: ts.Node): ts.ClassDeclaration | null => {
+    while (!ts.isClassDeclaration(node) && !ts.isSourceFile(node) && node.parent) {
         node = node.parent;
     }
 

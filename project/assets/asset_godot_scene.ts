@@ -71,11 +71,7 @@ export class GodotNode {
     project: TsGdProject;
     scriptExtResourceId: number | undefined;
 
-    constructor(
-        props: Required<IGodotSceneFile>["node"][0],
-        scene: AssetGodotScene,
-        project: TsGdProject,
-    ) {
+    constructor(props: Required<IGodotSceneFile>["node"][0], scene: AssetGodotScene, project: TsGdProject) {
         this.name = props.$section.name;
         this.project = project;
         this.scene = scene;
@@ -107,9 +103,7 @@ export class GodotNode {
     children(): GodotNode[] {
         const path = this.scenePath();
 
-        return this.scene.nodes.filter(
-            (node) => node.parent === path && !node.isInstanceOverride(),
-        );
+        return this.scene.nodes.filter((node) => node.parent === path && !node.isInstanceOverride());
     }
 
     private instanceId(): number | undefined {
@@ -139,22 +133,16 @@ export class GodotNode {
         const res = this.scene.resources.find((res) => res.id === instanceId);
 
         if (!res) {
-            throw new Error(
-                `Can't find associated scene for id ${instanceId} on ${this.scenePath()}`,
-            );
+            throw new Error(`Can't find associated scene for id ${instanceId} on ${this.scenePath()}`);
         }
 
-        const matchingScene = this.project
-            .godotScenes()
-            .find((scene) => scene.fsPath === res?.fsPath);
+        const matchingScene = this.project.godotScenes().find((scene) => scene.fsPath === res?.fsPath);
 
         if (matchingScene) {
             return matchingScene;
         }
 
-        const matchingGlb = this.project
-            .godotGlbs()
-            .find((glb) => glb.fsPath === res?.fsPath);
+        const matchingGlb = this.project.godotGlbs().find((glb) => glb.fsPath === res?.fsPath);
 
         if (matchingGlb) {
             return matchingGlb;
@@ -197,13 +185,9 @@ export class GodotNode {
         }
 
         addError({
-            description: `Error: Your Godot scene ${chalk.blue(
-                this.scene.fsPath,
-            )} refers to ${chalk.red(
+            description: `Error: Your Godot scene ${chalk.blue(this.scene.fsPath)} refers to ${chalk.red(
                 this.scenePath(),
-            )}, but it doesn't exist. It may have been deleted from the project. the tstype was ${
-                this.scene.resPath
-            }`,
+            )}, but it doesn't exist. It may have been deleted from the project. the tstype was ${this.scene.resPath}`,
             error: ErrorName.InvalidFile,
             location: this.name,
             stack: new Error().stack ?? "",
@@ -233,20 +217,14 @@ export class GodotNode {
             return undefined;
         }
 
-        const externalResource = sceneContainingScript.resources.find(
-            (obj) => obj.id === scriptId,
-        );
+        const externalResource = sceneContainingScript.resources.find((obj) => obj.id === scriptId);
 
         if (!externalResource) {
-            throw new Error(
-                `expected to be able to find a resource with id ${scriptId} in script ${this.scene.fsPath}, but did not.`,
-            );
+            throw new Error(`expected to be able to find a resource with id ${scriptId} in script ${this.scene.fsPath}, but did not.`);
         }
 
         let res = this.scene.project.assets.find(
-            (sf) =>
-                sf instanceof AssetSourceFile &&
-                sf.resPath === externalResource?.resPath,
+            (sf) => sf instanceof AssetSourceFile && sf.resPath === externalResource?.resPath,
         ) as AssetSourceFile;
 
         return res;
@@ -297,9 +275,7 @@ export class AssetGodotScene extends BaseAsset {
             };
         });
 
-        this.nodes = (sceneFile.node ?? []).map(
-            (node) => new GodotNode(node, this, this.project),
-        );
+        this.nodes = (sceneFile.node ?? []).map((node) => new GodotNode(node, this, this.project));
 
         this.name = path.basename(fsPath, ".tscn");
         this.rootNode = this.nodes.find((node) => !node.parent)!;
@@ -310,9 +286,7 @@ export class AssetGodotScene extends BaseAsset {
         const rootScript = this.rootNode.getScript();
 
         if (rootScript) {
-            const rootSourceFile = this.project
-                .sourceFiles()
-                .find((sf) => sf.resPath === rootScript.resPath);
+            const rootSourceFile = this.project.sourceFiles().find((sf) => sf.resPath === rootScript.resPath);
 
             if (!rootSourceFile) {
                 addError({
@@ -338,10 +312,7 @@ export class AssetGodotScene extends BaseAsset {
                 return "any";
             }
 
-            return `import('${rootSourceFile.fsPath.slice(
-                0,
-                -".ts".length,
-            )}').${rootSourceFile.exportedTsClassName()}`;
+            return `import('${rootSourceFile.fsPath.slice(0, -".ts".length)}').${rootSourceFile.exportedTsClassName()}`;
         } else {
             return this.rootNode.tsType();
         }

@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine, parseNode } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseArrayLiteralExpression = (
-    node: ts.ArrayLiteralExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parseArrayLiteralExpression = (node: ts.ArrayLiteralExpression, props: ParseState): ParseNodeType => {
     return combine({
         parent: node,
         nodes: node.elements,

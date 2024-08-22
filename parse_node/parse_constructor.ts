@@ -2,10 +2,7 @@ import ts from "typescript";
 
 import { ParseState, combine, ParseNodeType } from "../parse_node";
 
-export const parseConstructor = (
-    node: ts.ConstructorDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parseConstructor = (node: ts.ConstructorDeclaration, props: ParseState): ParseNodeType => {
     if (node.body) {
         // The trim() is for a constructor with only one element: a super() call
 

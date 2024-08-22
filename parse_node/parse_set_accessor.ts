@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseSetAccessor = (
-    node: ts.SetAccessorDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parseSetAccessor = (node: ts.SetAccessorDeclaration, props: ParseState): ParseNodeType => {
     return combine({
         parent: node,
         nodes: [node.name, node.body, ...node.parameters],

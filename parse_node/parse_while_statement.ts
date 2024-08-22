@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseWhileStatement = (
-    node: ts.WhileStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseWhileStatement = (node: ts.WhileStatement, props: ParseState): ParseNodeType => {
     const newProps = { ...props, mostRecentControlStructureIsSwitch: false };
 
     props.scope.enterScope();

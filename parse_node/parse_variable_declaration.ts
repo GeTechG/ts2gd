@@ -4,10 +4,7 @@ import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 import { getPreciseInitializerType as getFloatOrInt } from "../ts_utils";
 
-export const getDestructuredNamesAndAccessStrings = (
-    node: ts.BindingName,
-    access = "",
-): { id: ts.Identifier; access: string }[] => {
+export const getDestructuredNamesAndAccessStrings = (node: ts.BindingName, access = ""): { id: ts.Identifier; access: string }[] => {
     if (node.kind === SyntaxKind.Identifier) {
         const id = node as ts.Identifier;
 
@@ -17,12 +14,7 @@ export const getDestructuredNamesAndAccessStrings = (
 
         return obj.elements
             .map((elem) =>
-                getDestructuredNamesAndAccessStrings(
-                    elem.name,
-                    access +
-                        "." +
-                        (elem.propertyName?.getText() ?? elem.name.getText()),
-                ),
+                getDestructuredNamesAndAccessStrings(elem.name, access + "." + (elem.propertyName?.getText() ?? elem.name.getText())),
             )
             .flat();
     } else if (node.kind === SyntaxKind.ArrayBindingPattern) {
@@ -31,10 +23,7 @@ export const getDestructuredNamesAndAccessStrings = (
         return obj.elements
             .map((elem, i) => {
                 if (elem.kind === SyntaxKind.BindingElement) {
-                    return getDestructuredNamesAndAccessStrings(
-                        elem.name,
-                        access + `[${i}]`,
-                    );
+                    return getDestructuredNamesAndAccessStrings(elem.name, access + `[${i}]`);
                 } else {
                     throw new Error("I dont know what this is");
                 }
@@ -42,25 +31,17 @@ export const getDestructuredNamesAndAccessStrings = (
             .flat();
     }
 
-    throw new Error(
-        "Completely and totally impossible. You will never see this. I promise.",
-    );
+    throw new Error("Completely and totally impossible. You will never see this. I promise.");
 };
 
-export const parseVariableDeclaration = (
-    node: ts.VariableDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parseVariableDeclaration = (node: ts.VariableDeclaration, props: ParseState): ParseNodeType => {
     let declaredType = node.type?.getText();
 
     if (declaredType !== "int" && declaredType !== "float") {
         declaredType = undefined;
     }
 
-    let inferredType = getFloatOrInt(
-        node.initializer,
-        node.initializer ? node.initializer.getText() : "",
-    );
+    let inferredType = getFloatOrInt(node.initializer, node.initializer ? node.initializer.getText() : "");
 
     const type = declaredType ?? inferredType;
     const usages = props.usages.get(node.name as ts.Identifier);
@@ -68,10 +49,7 @@ export const parseVariableDeclaration = (
     const typeString = type ? `: ${type}` : "";
 
     if (node.name.kind === SyntaxKind.Identifier) {
-        const decl = props.program
-            .getTypeChecker()
-            .getTypeAtLocation(node)
-            .getSymbol()?.declarations?.[0];
+        const decl = props.program.getTypeChecker().getTypeAtLocation(node).getSymbol()?.declarations?.[0];
 
         const isAutoload =
             props.isAutoload &&
@@ -96,10 +74,7 @@ export const parseVariableDeclaration = (
             parent: node,
             nodes: [node.name, node.initializer],
             props,
-            parsedStrings: (nodeName, init) =>
-                `var ${unused}${nodeName}${typeString}${
-                    init ? " = " + init : ""
-                }`,
+            parsedStrings: (nodeName, init) => `var ${unused}${nodeName}${typeString}${init ? " = " + init : ""}`,
         });
     } else {
         let destructuredNames = getDestructuredNamesAndAccessStrings(node.name);
@@ -117,9 +92,7 @@ export const parseVariableDeclaration = (
             parsedStrings: (initializer, ...nodes) => {
                 return `
 var ${genName} = ${initializer}
-${nodes
-    .map((node, i) => `var ${node} = ${genName}${destructuredNames[i].access}`)
-    .join("\n")}
+${nodes.map((node, i) => `var ${node} = ${genName}${destructuredNames[i].access}`).join("\n")}
 `;
             },
         });

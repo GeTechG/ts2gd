@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseIdentifier = (
-    node: ts.Identifier,
-    props: ParseState,
-): ParseNodeType => {
+export const parseIdentifier = (node: ts.Identifier, props: ParseState): ParseNodeType => {
     const name = node.text;
 
     if (name === "undefined") {

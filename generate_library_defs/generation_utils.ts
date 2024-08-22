@@ -1,15 +1,5 @@
-export function sanitizeGodotNameForTs(
-    name: string,
-    type: "argument" | "property",
-): string {
-    if (
-        name === "with" ||
-        name === "var" ||
-        name === "class" ||
-        name === "enum" ||
-        name === "default" ||
-        name === "in"
-    ) {
+export function sanitizeGodotNameForTs(name: string, type: "argument" | "property"): string {
+    if (name === "with" || name === "var" || name === "class" || name === "enum" || name === "default" || name === "in") {
         if (type === "argument") {
             return "_" + name;
         } else {
@@ -95,10 +85,7 @@ export function formatJsDoc(input: string): string {
     const indentationLength = lines[1].length - lines[1].trimStart().length;
 
     // All lines are indented except the first one for some reason.
-    lines = [
-        lines[0],
-        ...lines.slice(1).map((line) => line.slice(indentationLength)),
-    ];
+    lines = [lines[0], ...lines.slice(1).map((line) => line.slice(indentationLength))];
 
     lines = lines.filter((line) => line.trim() !== "");
 

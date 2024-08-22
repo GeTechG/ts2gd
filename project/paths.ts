@@ -98,18 +98,12 @@ export class Paths {
             } else if (ts2gdPath.startsWith(".")) {
                 // some sort of relative path, so resolve it
 
-                fullyQualifiedTs2gdPathWithFilename = path.join(
-                    __dirname,
-                    args.tsgdPath,
-                );
+                fullyQualifiedTs2gdPathWithFilename = path.join(__dirname, args.tsgdPath);
             }
         } else {
             // Check if we can find the ts2gd.json in the current folder
 
-            const ts2gdInCurrentFolderPath = path.join(
-                process.cwd(),
-                "ts2gd.json",
-            );
+            const ts2gdInCurrentFolderPath = path.join(process.cwd(), "ts2gd.json");
 
             if (!fs.existsSync(ts2gdInCurrentFolderPath)) {
                 console.error("No ts2gd.json file found.");
@@ -123,53 +117,26 @@ export class Paths {
 
         fullyQualifiedTs2gdPathWithFilename = ts2gdPath;
 
-        fullyQualifiedTs2gdPath = path.dirname(
-            fullyQualifiedTs2gdPathWithFilename,
-        );
+        fullyQualifiedTs2gdPath = path.dirname(fullyQualifiedTs2gdPathWithFilename);
 
-        const tsgdJson = JSON.parse(
-            fs.readFileSync(fullyQualifiedTs2gdPathWithFilename, "utf-8"),
-        );
+        const tsgdJson = JSON.parse(fs.readFileSync(fullyQualifiedTs2gdPathWithFilename, "utf-8"));
 
         // TODO: Assert that these are found on the json object
         this.sourceTsPath = path.join(fullyQualifiedTs2gdPath, tsgdJson.source);
-        this.destGdPath = path.join(
-            fullyQualifiedTs2gdPath,
-            tsgdJson.destination,
-        );
+        this.destGdPath = path.join(fullyQualifiedTs2gdPath, tsgdJson.destination);
         this.rootPath = fullyQualifiedTs2gdPath;
-        this.staticGodotDefsPath = path.join(
-            this.rootPath,
-            "_godot_defs",
-            "static",
-        );
-        this.dynamicGodotDefsPath = path.join(
-            this.rootPath,
-            "_godot_defs",
-            "dynamic",
-        );
+        this.staticGodotDefsPath = path.join(this.rootPath, "_godot_defs", "static");
+        this.dynamicGodotDefsPath = path.join(this.rootPath, "_godot_defs", "dynamic");
 
         this.godotSourceRepoPath = tsgdJson.godotSourceRepoPath || undefined;
 
-        this.csgClassesPath = path.join(
-            this.godotSourceRepoPath ?? "",
-            "modules/csg/doc_classes",
-        );
+        this.csgClassesPath = path.join(this.godotSourceRepoPath ?? "", "modules/csg/doc_classes");
 
-        this.websocketClassesPath = path.join(
-            this.godotSourceRepoPath ?? "",
-            "modules/websocket/doc_classes",
-        );
+        this.websocketClassesPath = path.join(this.godotSourceRepoPath ?? "", "modules/websocket/doc_classes");
 
-        this.normalClassesPath = path.join(
-            this.godotSourceRepoPath ?? "",
-            "doc/classes",
-        );
+        this.normalClassesPath = path.join(this.godotSourceRepoPath ?? "", "doc/classes");
 
-        this.gdscriptPath = path.join(
-            this.godotSourceRepoPath ?? "",
-            "modules/gdscript/doc_classes",
-        );
+        this.gdscriptPath = path.join(this.godotSourceRepoPath ?? "", "modules/gdscript/doc_classes");
 
         this.additionalIgnores = [];
         this.tsFileIgnores = [];
@@ -181,10 +148,7 @@ export class Paths {
             }
         }
 
-        this.tsconfigPath = path.join(
-            path.dirname(fullyQualifiedTs2gdPathWithFilename),
-            "tsconfig.json",
-        );
+        this.tsconfigPath = path.join(path.dirname(fullyQualifiedTs2gdPathWithFilename), "tsconfig.json");
 
         if (!fs.existsSync(this.tsconfigPath)) {
             showLoadingMessage("Creating tsconfig.json", args);

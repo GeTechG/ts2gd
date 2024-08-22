@@ -68,10 +68,7 @@ export class GodotProjectFile {
     }
 
     addAutoload(className: string, resPath: string) {
-        this.project.godotProject.autoloads = [
-            ...this.project.godotProject.autoloads,
-            { resPath: resPath },
-        ];
+        this.project.godotProject.autoloads = [...this.project.godotProject.autoloads, { resPath: resPath }];
 
         const lines = fs.readFileSync(this.fsPath, "utf-8").split("\n");
         const index = lines.indexOf("[autoload]");
@@ -87,10 +84,7 @@ export class GodotProjectFile {
     }
 
     removeAutoload(resPath: string) {
-        this.project.godotProject.autoloads =
-            this.project.godotProject.autoloads.filter(
-                (a) => a.resPath !== resPath,
-            );
+        this.project.godotProject.autoloads = this.project.godotProject.autoloads.filter((a) => a.resPath !== resPath);
 
         // TODO: This is a big hack
         let lines = fs.readFileSync(this.fsPath, "utf-8").split("\n");
@@ -126,12 +120,8 @@ export class GodotProjectFile {
             const allScenes = this.project.godotScenes();
 
             if (allScenes.length > 1) {
-                console.warn(
-                    "No main scene defined and more than one scene found! Choosing one arbitrarily.",
-                );
-                console.warn(
-                    "Please set a main scene in the Godot project settings.",
-                );
+                console.warn("No main scene defined and more than one scene found! Choosing one arbitrarily.");
+                console.warn("Please set a main scene in the Godot project settings.");
                 console.warn("\n");
                 console.warn("Scenes found:");
 

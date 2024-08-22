@@ -2,10 +2,7 @@ import ts from "typescript";
 
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 
-export const parseSwitchStatement = (
-    node: ts.SwitchStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseSwitchStatement = (node: ts.SwitchStatement, props: ParseState): ParseNodeType => {
     const newProps = {
         ...props,
         mostRecentControlStructureIsSwitch: true,
@@ -22,10 +19,7 @@ export const parseSwitchStatement = (
     });
 };
 
-export const parseSwitchCaseBlock = (
-    node: ts.CaseBlock,
-    props: ParseState,
-): ParseNodeType => {
+export const parseSwitchCaseBlock = (node: ts.CaseBlock, props: ParseState): ParseNodeType => {
     return combine({
         parent: node,
         nodes: node.clauses,
@@ -34,10 +28,7 @@ export const parseSwitchCaseBlock = (
     });
 };
 
-export const parseCaseClause = (
-    node: ts.CaseClause,
-    props: ParseState,
-): ParseNodeType => {
+export const parseCaseClause = (node: ts.CaseClause, props: ParseState): ParseNodeType => {
     return combine({
         addIndent: true,
         parent: node,
@@ -49,10 +40,7 @@ ${props.indent}${expr}:
     });
 };
 
-export const parseDefaultClause = (
-    node: ts.DefaultClause,
-    props: ParseState,
-): ParseNodeType => {
+export const parseDefaultClause = (node: ts.DefaultClause, props: ParseState): ParseNodeType => {
     return combine({
         addIndent: true,
         parent: node,

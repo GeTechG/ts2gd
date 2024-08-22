@@ -6,36 +6,23 @@ import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 import { getGodotType, getTypeHierarchy, isEnumType } from "../ts_utils";
 
-export const isDecoratedAsExports = (
-    node:
-        | ts.PropertyDeclaration
-        | ts.GetAccessorDeclaration
-        | ts.SetAccessorDeclaration,
-) => {
+export const isDecoratedAsExports = (node: ts.PropertyDeclaration | ts.GetAccessorDeclaration | ts.SetAccessorDeclaration) => {
     return !!ts
         .getDecorators(node)
         ?.find(
             (dec) =>
                 dec.expression.getText() === "exports" ||
-                (ts.isCallExpression(dec.expression) &&
-                    dec.expression.expression.getText() === "exports"),
+                (ts.isCallExpression(dec.expression) && dec.expression.expression.getText() === "exports"),
         );
 };
 
-export const parseExports = (
-    node:
-        | ts.PropertyDeclaration
-        | ts.GetAccessorDeclaration
-        | ts.SetAccessorDeclaration,
-    props: ParseState,
-) => {
+export const parseExports = (node: ts.PropertyDeclaration | ts.GetAccessorDeclaration | ts.SetAccessorDeclaration, props: ParseState) => {
     const decoration = ts
         .getDecorators(node)
         ?.find(
             (dec) =>
                 dec.expression.getText() === "exports" ||
-                (ts.isCallExpression(dec.expression) &&
-                    dec.expression.expression.getText() === "exports"),
+                (ts.isCallExpression(dec.expression) && dec.expression.expression.getText() === "exports"),
         );
 
     const typeGodotName = getGodotType(
@@ -55,10 +42,7 @@ export const parseExports = (
         godotExportArgs.push(...parseExportsArrayElement(node.type, props));
     }
 
-    if (
-        decoration &&
-        decoration.expression.kind === SyntaxKind.CallExpression
-    ) {
+    if (decoration && decoration.expression.kind === SyntaxKind.CallExpression) {
         // Handle exports arguments
         const fn = decoration.expression as ts.CallExpression;
 
@@ -68,13 +52,7 @@ export const parseExports = (
                 nodes: [...fn.arguments],
                 props,
                 parsedStrings: (...args) =>
-                    args
-                        .map((arg) =>
-                            arg.startsWith("ExportHint.")
-                                ? arg.substr("ExportHint.".length)
-                                : arg,
-                        )
-                        .join(", "),
+                    args.map((arg) => (arg.startsWith("ExportHint.") ? arg.substr("ExportHint.".length) : arg)).join(", "),
             });
 
             godotExportArgs.push(result.content);
@@ -84,10 +62,7 @@ export const parseExports = (
     return `export(${godotExportArgs.join(", ")}) `;
 };
 
-const parseExportsArrayElement = (
-    node: ts.ArrayTypeNode,
-    props: ParseState,
-): string[] => {
+const parseExportsArrayElement = (node: ts.ArrayTypeNode, props: ParseState): string[] => {
     let elementType = node.elementType;
     const godotExportArgs = [];
 
@@ -103,10 +78,7 @@ const parseExportsArrayElement = (
             elementType,
         );
 
-        return [
-            typeGodotElement ?? "null",
-            ...parseExportsArrayElement(elementType, props),
-        ];
+        return [typeGodotElement ?? "null", ...parseExportsArrayElement(elementType, props)];
     } else if (ts.isTypeReferenceNode(elementType)) {
         // If elementType is generic we need to extract only type name and discard type arguments
 
@@ -116,10 +88,7 @@ const parseExportsArrayElement = (
         elementType = elementType.typeName as any;
     }
 
-    if (
-        elementType.kind !== SyntaxKind.AnyKeyword &&
-        elementType.kind !== SyntaxKind.UnknownKeyword
-    ) {
+    if (elementType.kind !== SyntaxKind.AnyKeyword && elementType.kind !== SyntaxKind.UnknownKeyword) {
         // unknown and any keyword should not infer array type for export
 
         const typeGodotElement = getGodotType(
@@ -150,32 +119,17 @@ Cannot infer element type for array export.
     return godotExportArgs;
 };
 
-export const isDecoratedAsExportFlags = (
-    node:
-        | ts.PropertyDeclaration
-        | ts.GetAccessorDeclaration
-        | ts.SetAccessorDeclaration,
-): boolean => {
-    return !!ts
-        .getDecorators(node)
-        ?.find((dec) => dec.expression.getText().startsWith("export_flags"));
+export const isDecoratedAsExportFlags = (node: ts.PropertyDeclaration | ts.GetAccessorDeclaration | ts.SetAccessorDeclaration): boolean => {
+    return !!ts.getDecorators(node)?.find((dec) => dec.expression.getText().startsWith("export_flags"));
 };
 
 export const parseExportFlags = (
-    node:
-        | ts.PropertyDeclaration
-        | ts.GetAccessorDeclaration
-        | ts.SetAccessorDeclaration,
+    node: ts.PropertyDeclaration | ts.GetAccessorDeclaration | ts.SetAccessorDeclaration,
     props: ParseState,
 ): string => {
-    const decoration = ts
-        .getDecorators(node)
-        ?.find((dec) => dec.expression.getText().startsWith("export_flags"));
+    const decoration = ts.getDecorators(node)?.find((dec) => dec.expression.getText().startsWith("export_flags"));
 
-    if (
-        !decoration ||
-        decoration.expression.kind !== SyntaxKind.CallExpression
-    ) {
+    if (!decoration || decoration.expression.kind !== SyntaxKind.CallExpression) {
         addError({
             description: `
 I'm confused by export_flags here. It should be a function call.
@@ -209,22 +163,15 @@ const isOnReady = (node: ts.PropertyDeclaration, props: ParseState) => {
 
         const initializerText = node.initializer.getText();
 
-        if (
-            initializerText.includes("get_node(") ||
-            initializerText.includes("get_node_unsafe")
-        ) {
+        if (initializerText.includes("get_node(") || initializerText.includes("get_node_unsafe")) {
             return true;
         }
 
         // TODO: This isn't quite so simple, because we could do something like node.value - where
         // node is Node but value is int - which we should mark as onready, but we aren't currently
 
-        const initializerType = props.program
-            .getTypeChecker()
-            .getTypeAtLocation(node.initializer);
-        const hierarchy = getTypeHierarchy(initializerType).map((x) =>
-            props.program.getTypeChecker().typeToString(x),
-        );
+        const initializerType = props.program.getTypeChecker().getTypeAtLocation(node.initializer);
+        const hierarchy = getTypeHierarchy(initializerType).map((x) => props.program.getTypeChecker().typeToString(x));
 
         return hierarchy.includes("Node2D") || hierarchy.includes("Node");
     }
@@ -246,10 +193,7 @@ const getSuperclassType = (classType: ts.Type) => {
     return baseTypes[0];
 };
 
-export const parsePropertyDeclaration = (
-    node: ts.PropertyDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parsePropertyDeclaration = (node: ts.PropertyDeclaration, props: ParseState): ParseNodeType => {
     let klass = node.parent;
     let classType = props.program.getTypeChecker().getTypeAtLocation(klass);
     let type = props.program.getTypeChecker().getTypeAtLocation(node);
@@ -297,9 +241,7 @@ export const parsePropertyDeclaration = (
     if (isDecoratedAsExports(node)) {
         // TODO: Have a fallback
 
-        exportText = isDecoratedAsExports(node)
-            ? parseExports(node, props)
-            : "";
+        exportText = isDecoratedAsExports(node) ? parseExports(node, props) : "";
     }
 
     if (isDecoratedAsExportFlags(node)) {
@@ -316,11 +258,7 @@ export const parsePropertyDeclaration = (
             // Don't redeclare properties defined in a superclass. This is useful in
             // TS (because you can define them w/ more precise types) but causes an
             // error in Godot.
-            if (
-                superclassType
-                    ?.getProperties()
-                    .find((prop) => prop.name === name)
-            ) {
+            if (superclassType?.getProperties().find((prop) => prop.name === name)) {
                 return "";
             }
 

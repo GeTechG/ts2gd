@@ -34,13 +34,8 @@ export const checkVersionAsync = async () => {
         req.end();
     });
 
-    const versionNameDate: [string, Date][] = Object.entries(
-        JSON.parse(response).time as { [key: string]: string },
-    )
-        .sort(
-            (first: [string, string], second: [string, string]) =>
-                new Date(second[1]).getTime() - new Date(first[1]).getTime(),
-        )
+    const versionNameDate: [string, Date][] = Object.entries(JSON.parse(response).time as { [key: string]: string })
+        .sort((first: [string, string], second: [string, string]) => new Date(second[1]).getTime() - new Date(first[1]).getTime())
         .map(([a, b]) => [a, new Date(b)]);
 
     let latestPublishedVersion = "";
@@ -55,9 +50,7 @@ export const checkVersionAsync = async () => {
 
     if (latestPublishedVersion !== version) {
         console.info(``);
-        console.info(
-            `There is a new version (${latestPublishedVersion}) of ts2gd. (You have ${version}.)`,
-        );
+        console.info(`There is a new version (${latestPublishedVersion}) of ts2gd. (You have ${version}.)`);
         console.info(`Install it with`);
         console.info(``);
         console.info(chalk.blue(`npm install --global ts2gd`));

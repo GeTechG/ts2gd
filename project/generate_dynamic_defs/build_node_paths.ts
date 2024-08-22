@@ -13,11 +13,7 @@ import { AssetSourceFile } from "../assets/asset_source_file";
  * @param node
  * @param prefix
  */
-export const getAllChildPaths = (
-    node: GodotNode,
-    ignoreNextName = false,
-    prefix = "",
-): { path: string; node: GodotNode }[] => {
+export const getAllChildPaths = (node: GodotNode, ignoreNextName = false, prefix = ""): { path: string; node: GodotNode }[] => {
     let myPath = "";
 
     if (ignoreNextName) {
@@ -45,10 +41,7 @@ export const getAllChildPaths = (
     return result;
 };
 
-export default function buildNodePathsTypeForScript(
-    script: AssetSourceFile,
-    project: TsGdProject,
-): void {
+export default function buildNodePathsTypeForScript(script: AssetSourceFile, project: TsGdProject): void {
     // Find all instances of this script in all scenes.
 
     const nodesWithScript: GodotNode[] = [];
@@ -91,11 +84,7 @@ export default function buildNodePathsTypeForScript(
         node: GodotNode;
     }[] = [];
 
-    let references: (
-        | { use: string; children: string[]; type: "script" }
-        | { use: string; type: "instance" }
-        | { type: "autoload" }
-    )[] = [];
+    let references: ({ use: string; children: string[]; type: "script" } | { use: string; type: "instance" } | { type: "autoload" })[] = [];
 
     if (nodesWithScript.length === 0) {
         if (script.isAutoload()) {
@@ -120,9 +109,7 @@ export default function buildNodePathsTypeForScript(
             // console.error("Unused class:", className)
         }
     } else {
-        const relativePathsPerNode = nodesWithScript.map((node) =>
-            getAllChildPaths(node, true),
-        );
+        const relativePathsPerNode = nodesWithScript.map((node) => getAllChildPaths(node, true));
 
         references = nodesWithScript.map((node) => ({
             type: "script",
@@ -130,14 +117,9 @@ export default function buildNodePathsTypeForScript(
             children: getAllChildPaths(node).map((o) => o.path),
         }));
 
-        commonRelativePaths = getCommonElements(
-            relativePathsPerNode,
-            (a, b) => a.path === b.path,
-        );
+        commonRelativePaths = getCommonElements(relativePathsPerNode, (a, b) => a.path === b.path);
 
-        const instancedScene = nodesWithScript.find(
-            (node) => node.isRoot,
-        )?.scene;
+        const instancedScene = nodesWithScript.find((node) => node.isRoot)?.scene;
 
         if (instancedScene) {
             const allScenes = project.godotScenes();
@@ -164,14 +146,9 @@ export default function buildNodePathsTypeForScript(
 
             scenesThatContainInstance = [...new Set(scenesThatContainInstance)];
 
-            const allScenePaths = scenesThatContainInstance.map((scene) =>
-                getAllChildPaths(scene.rootNode),
-            );
+            const allScenePaths = scenesThatContainInstance.map((scene) => getAllChildPaths(scene.rootNode));
 
-            const commonScenePaths = getCommonElements(
-                allScenePaths,
-                (a, b) => a.path === b.path,
-            );
+            const commonScenePaths = getCommonElements(allScenePaths, (a, b) => a.path === b.path);
 
             commonRelativePaths = [
                 ...commonRelativePaths,
@@ -191,10 +168,7 @@ export default function buildNodePathsTypeForScript(
         const script = node.getScript();
 
         if (script) {
-            pathToImport[path] = `import("${script.fsPath.slice(
-                0,
-                -".ts".length,
-            )}").${script.exportedTsClassName()}`;
+            pathToImport[path] = `import("${script.fsPath.slice(0, -".ts".length)}").${script.exportedTsClassName()}`;
         } else {
             pathToImport[path] = node.tsType();
         }
@@ -254,23 +228,13 @@ export default function buildNodePathsTypeForScript(
         .map((c) => process(c))
         .join("\n");
 
-    let result = `${
-        references.length > 0
-            ? `// Uses of "${script.resPath}": \n`
-            : `// No uses of "${script.resPath}" found.\n`
-    }
+    let result = `${references.length > 0 ? `// Uses of "${script.resPath}": \n` : `// No uses of "${script.resPath}" found.\n`}
 ${references
     .map((ref) => {
         if (ref.type === "autoload") {
             return "// This is an autoload class\n";
         } else if (ref.type === "script") {
-            return (
-                "// As a script:\n" +
-                "//   " +
-                ref.use +
-                "\n" +
-                ref.children.map((c) => "//     - " + c + " \n").join("")
-            );
+            return "// As a script:\n" + "//   " + ref.use + "\n" + ref.children.map((c) => "//     - " + c + " \n").join("");
         } else if (ref.type === "instance") {
             return "// As an instance:\n" + "//  " + ref.use + "\n";
         }
@@ -325,10 +289,7 @@ declare module '${script.tsRelativePath.slice(0, -".ts".length)}' {
 }
 `;
 
-    const destPath = path.join(
-        project.paths.dynamicGodotDefsPath,
-        `@node_paths_${script.getGodotClassName()}.d.ts`,
-    );
+    const destPath = path.join(project.paths.dynamicGodotDefsPath, `@node_paths_${script.getGodotClassName()}.d.ts`);
 
     fs.writeFileSync(destPath, result);
 }

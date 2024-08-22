@@ -15,7 +15,7 @@ export default tseslint.config(
             "tsconfig.json",
             "package.json",
             "package-lock.json",
-            "**/generate_library_defs/custom_defs/**"
+            "**/generate_library_defs/custom_defs/**",
         ],
     },
     eslint.configs.recommended,
@@ -30,7 +30,7 @@ export default tseslint.config(
                 "error",
                 {
                     tabWidth: 4,
-                    printWidth: 140
+                    printWidth: 140,
                 },
             ],
             "prefer-const": "off",

@@ -3,10 +3,7 @@ import ts, { SyntaxKind } from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseObjectLiteralExpression = (
-    node: ts.ObjectLiteralExpression,
-    props: ParseState,
-): ParseNodeType => {
+export const parseObjectLiteralExpression = (node: ts.ObjectLiteralExpression, props: ParseState): ParseNodeType => {
     if (node.properties.length === 0) {
         return combine({
             parent: node,

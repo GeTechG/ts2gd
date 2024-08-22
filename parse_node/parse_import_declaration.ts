@@ -8,10 +8,7 @@ import { ErrorName, addError } from "../errors";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { isEnumType } from "../ts_utils";
 
-const getPathWithoutExtension = (
-    node: ts.ImportDeclaration,
-    props: ParseState,
-) => {
+const getPathWithoutExtension = (node: ts.ImportDeclaration, props: ParseState) => {
     const importPathLiteral = node.moduleSpecifier as ts.StringLiteral;
     const importPath = importPathLiteral.text;
     let pathToImportedTs = "";
@@ -19,10 +16,7 @@ const getPathWithoutExtension = (
     if (importPath.startsWith(".")) {
         // Handle relative paths
 
-        pathToImportedTs = path.join(
-            path.dirname(node.getSourceFile().fileName),
-            importPath,
-        );
+        pathToImportedTs = path.join(path.dirname(node.getSourceFile().fileName), importPath);
     } else {
         // Handle absolute paths
 
@@ -53,22 +47,16 @@ export const getImportResPathForEnum = (
     }
 
     if (enumDeclarations.length === 0 || enumDeclarations.length > 1) {
-        throw new Error(
-            `Invalid length for declarations: ${enumDeclarations.length}`,
-        );
+        throw new Error(`Invalid length for declarations: ${enumDeclarations.length}`);
     }
 
     const enumDeclaration = enumDeclarations[0];
     const enumSourceFile = enumDeclaration.getSourceFile();
 
-    const enumSourceFileAsset = props.project
-        .sourceFiles()
-        .find((sf) => sf.fsPath === enumSourceFile.fileName);
+    const enumSourceFileAsset = props.project.sourceFiles().find((sf) => sf.fsPath === enumSourceFile.fileName);
 
     if (!enumSourceFileAsset) {
-        throw new Error(
-            `Can't find associated sourcefile for ${enumSourceFile.fileName}`,
-        );
+        throw new Error(`Can't find associated sourcefile for ${enumSourceFile.fileName}`);
     }
 
     let enumTypeString = props.program.getTypeChecker().typeToString(node);
@@ -78,8 +66,7 @@ export const getImportResPathForEnum = (
     }
 
     const pathWithoutEnum = enumSourceFileAsset.resPath;
-    const importPath =
-        pathWithoutEnum.slice(0, -".gd".length) + "_" + enumTypeString + ".gd";
+    const importPath = pathWithoutEnum.slice(0, -".gd".length) + "_" + enumTypeString + ".gd";
 
     return {
         resPath: importPath,
@@ -88,10 +75,7 @@ export const getImportResPathForEnum = (
     };
 };
 
-export const parseImportDeclaration = (
-    node: ts.ImportDeclaration,
-    props: ParseState,
-): ParseNodeType => {
+export const parseImportDeclaration = (node: ts.ImportDeclaration, props: ParseState): ParseNodeType => {
     // Step 1: resolve full path
 
     const pathWithoutExtension = getPathWithoutExtension(node, props);
@@ -118,17 +102,12 @@ export const parseImportDeclaration = (
         const bindings = namedBindings as ts.NamedImports;
 
         for (const element of bindings.elements) {
-            const type = props.program
-                .getTypeChecker()
-                .getTypeAtLocation(element);
+            const type = props.program.getTypeChecker().getTypeAtLocation(element);
 
             // TODO rewrite this using new project obj
 
             if (isEnumType(type)) {
-                const { resPath, enumName } = getImportResPathForEnum(
-                    type,
-                    props,
-                );
+                const { resPath, enumName } = getImportResPathForEnum(type, props);
 
                 imports.push({
                     importedName: enumName,
@@ -138,9 +117,7 @@ export const parseImportDeclaration = (
             } else if (type.symbol?.name === "PackedScene") {
                 const importedName = element.name.text;
                 const className = importedName.slice(0, -"Tscn".length);
-                const resPath = props.project
-                    .godotScenes()
-                    .find((scene) => scene.name === className)?.resPath;
+                const resPath = props.project.godotScenes().find((scene) => scene.name === className)?.resPath;
 
                 if (!resPath) {
                     continue;
@@ -152,9 +129,7 @@ export const parseImportDeclaration = (
                     type: "scene",
                 });
             } else {
-                const importedSourceFile = props.project
-                    .sourceFiles()
-                    .find((sf) => sf.fsPath === pathToImportedTs);
+                const importedSourceFile = props.project.sourceFiles().find((sf) => sf.fsPath === pathToImportedTs);
 
                 if (!importedSourceFile) {
                     if (pathToImportedTs.includes("@")) {
@@ -171,9 +146,7 @@ export const parseImportDeclaration = (
                     continue;
                 }
 
-                let typeString = props.program
-                    .getTypeChecker()
-                    .typeToString(type);
+                let typeString = props.program.getTypeChecker().typeToString(type);
 
                 if (typeString.startsWith("typeof ")) {
                     typeString = typeString.slice("typeof ".length);

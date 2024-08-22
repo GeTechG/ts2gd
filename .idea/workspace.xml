@@ -4,30 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/mockProject/ts_src/MyNode.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/new_parse_node.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/new_parse_node/parse_source_file.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.prettierrc" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/eslint.config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/generate_gdscript_lib.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" beforeDir="false" afterPath="$PROJECT_DIR$/generate_library_defs/library_builder.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mockProject/Main.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/Main.tscn" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mockProject/default_env.tres" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/default_env.tres" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mockProject/icon.png.import" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/icon.png.import" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mockProject/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/project.godot" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mockProject/ts2gd.json" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/ts2gd.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_method_declaration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_method_declaration.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_source_file.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_source_file.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_variable_statement.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_variable_statement.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/assets/asset_source_file.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/assets/asset_source_file.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/project.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/project.ts" afterDir="false" />
-    </list>
+    <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

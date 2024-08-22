@@ -6,10 +6,7 @@ import { Test } from "../tests/test";
 import { getDestructuredNamesAndAccessStrings } from "./parse_variable_declaration";
 const { SyntaxKind } = ts;
 
-export const parseForOfStatement = (
-    node: ts.ForOfStatement,
-    props: ParseState,
-): ParseNodeType => {
+export const parseForOfStatement = (node: ts.ForOfStatement, props: ParseState): ParseNodeType => {
     const initializer = node.initializer;
     let result: ParseNodeType;
 
@@ -42,9 +39,7 @@ for ${name} in ${expr}:
             // Destructured case
             // like for (const [a, b] of list)
 
-            const destructuredNames = getDestructuredNamesAndAccessStrings(
-                initializerNode.declarations[0].name,
-            );
+            const destructuredNames = getDestructuredNamesAndAccessStrings(initializerNode.declarations[0].name);
 
             for (const { id } of destructuredNames) {
                 props.scope.addName(id);
@@ -54,21 +49,12 @@ for ${name} in ${expr}:
 
             result = combine({
                 parent: node,
-                nodes: [
-                    node.expression,
-                    node.statement,
-                    ...destructuredNames.map((d) => d.id),
-                ],
+                nodes: [node.expression, node.statement, ...destructuredNames.map((d) => d.id)],
                 props,
                 addIndent: true,
                 parsedStrings: (expr, statement, ...nodes) => `
 for ${genName} in ${expr}:
-${nodes
-    .map(
-        (node, i) =>
-            `  var ${node} = ${genName}${destructuredNames[i].access}\n`,
-    )
-    .join("")}
+${nodes.map((node, i) => `  var ${node} = ${genName}${destructuredNames[i].access}\n`).join("")}
   ${statement}
 `,
             });

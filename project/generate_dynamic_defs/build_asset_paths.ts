@@ -31,9 +31,6 @@ ${project.assets
 declare type AssetPath = keyof AssetType;
   `;
 
-    const destPath = path.join(
-        project.paths.dynamicGodotDefsPath,
-        "@asset_paths.d.ts",
-    );
+    const destPath = path.join(project.paths.dynamicGodotDefsPath, "@asset_paths.d.ts");
     fs.writeFileSync(destPath, assetFileContents);
 }

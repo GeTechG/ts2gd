@@ -3,10 +3,7 @@ import ts from "typescript";
 import { ParseNodeType, ParseState, combine } from "../parse_node";
 import { Test } from "../tests/test";
 
-export const parseNoSubstitutionTemplateLiteral = (
-    node: ts.NoSubstitutionTemplateLiteral,
-    props: ParseState,
-): ParseNodeType => {
+export const parseNoSubstitutionTemplateLiteral = (node: ts.NoSubstitutionTemplateLiteral, props: ParseState): ParseNodeType => {
     const sanitizeText = (text: string) => {
         return text.replaceAll("\n", "\\n");
     };

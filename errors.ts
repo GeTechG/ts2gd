@@ -64,19 +64,13 @@ export const displayErrors = (args: ParsedArgs, message: string) => {
 
     console.info(message);
     console.info();
-    console.info(
-        chalk.redBright(
-            `${errors.length} error${errors.length > 1 ? "s" : ""}.`,
-        ),
-    );
+    console.info(chalk.redBright(`${errors.length} error${errors.length > 1 ? "s" : ""}.`));
 
     for (const error of errors) {
         if (typeof error.location === "string") {
             console.warn(`${chalk.blueBright(error.location)}`);
         } else {
-            const lineAndChar = error.location
-                .getSourceFile()
-                ?.getLineAndCharacterOfPosition(error.location.getStart());
+            const lineAndChar = error.location.getSourceFile()?.getLineAndCharacterOfPosition(error.location.getStart());
 
             if (!lineAndChar && args.debug) {
                 console.log(lineAndChar);
@@ -88,9 +82,7 @@ export const displayErrors = (args: ParsedArgs, message: string) => {
 
             console.warn();
             console.warn(
-                `${chalk.blueBright(
-                    error.location.getSourceFile().fileName,
-                )}:${chalk.yellow(line + 1)}:${chalk.yellow(character + 1)}`,
+                `${chalk.blueBright(error.location.getSourceFile().fileName)}:${chalk.yellow(line + 1)}:${chalk.yellow(character + 1)}`,
             );
 
             if (args.debug) {

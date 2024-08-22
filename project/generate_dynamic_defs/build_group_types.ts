@@ -22,17 +22,12 @@ export default function buildGroupTypes(project: TsGdProject): void {
     let result = `declare type Groups = {\n`;
 
     for (const [group, commonTypes] of Object.entries(groupNameToTypes)) {
-        result += `  '${group}': ${[...commonTypes]
-            .map((type) => type)
-            .join(" | ")}\n`;
+        result += `  '${group}': ${[...commonTypes].map((type) => type).join(" | ")}\n`;
     }
 
     result += `}`;
 
-    const destPath = path.join(
-        project.paths.dynamicGodotDefsPath,
-        "@groups.d.ts",
-    );
+    const destPath = path.join(project.paths.dynamicGodotDefsPath, "@groups.d.ts");
 
     fs.writeFileSync(destPath, result);
 }

@@ -1,20 +1,8 @@
 import ts, { SymbolFlags, SyntaxKind } from "typescript";
 
-import {
-    ExtraLine,
-    ExtraLineType,
-    ParseNodeType,
-    ParseState,
-    combine,
-    parseNode,
-} from "../parse_node";
+import { ExtraLine, ExtraLineType, ParseNodeType, ParseState, combine, parseNode } from "../parse_node";
 import { Test } from "../tests/test";
-import {
-    findContainingClassDeclaration,
-    isDictionary,
-    isEnumType,
-    isNullableNode,
-} from "../ts_utils";
+import { findContainingClassDeclaration, isDictionary, isEnumType, isNullableNode } from "../ts_utils";
 
 const isRhs = (node: ts.PropertyAccessExpression) => {
     let parentExpression: ts.Node = node;
@@ -23,8 +11,7 @@ const isRhs = (node: ts.PropertyAccessExpression) => {
         parentExpression.parent &&
         (parentExpression.parent.kind !== SyntaxKind.BinaryExpression ||
             (parentExpression.parent.kind === SyntaxKind.BinaryExpression &&
-                (parentExpression.parent as ts.BinaryExpression).operatorToken
-                    .kind !== SyntaxKind.EqualsToken))
+                (parentExpression.parent as ts.BinaryExpression).operatorToken.kind !== SyntaxKind.EqualsToken))
     ) {
         parentExpression = parentExpression.parent;
     }
@@ -34,23 +21,15 @@ const isRhs = (node: ts.PropertyAccessExpression) => {
         return true;
     }
 
-    if (
-        parentExpression.parent &&
-        binaryExpression.right === parentExpression
-    ) {
+    if (parentExpression.parent && binaryExpression.right === parentExpression) {
         return true;
     } else {
         return false;
     }
 };
 
-export const parsePropertyAccessExpression = (
-    node: ts.PropertyAccessExpression,
-    props: ParseState,
-): ParseNodeType => {
-    const exprType = props.program
-        .getTypeChecker()
-        .getTypeAtLocation(node.expression);
+export const parsePropertyAccessExpression = (node: ts.PropertyAccessExpression, props: ParseState): ParseNodeType => {
+    const exprType = props.program.getTypeChecker().getTypeAtLocation(node.expression);
 
     // Compile things like KeyList.KEY_SPACE into KEY_SPACE
     if (isEnumType(exprType)) {
@@ -59,9 +38,7 @@ export const parsePropertyAccessExpression = (
 
         let isGlobal = false;
         if (declarations) {
-            const sourceFiles = declarations.map(
-                (d) => d.getSourceFile().fileName,
-            );
+            const sourceFiles = declarations.map((d) => d.getSourceFile().fileName);
             isGlobal = !!sourceFiles.find((f) => f.includes("@globals.d.ts"));
         }
 
@@ -80,19 +57,13 @@ export const parsePropertyAccessExpression = (
         parsedStrings: (lhs, rhs) => {
             if (node.questionDotToken) {
                 const type = tc.getTypeAtLocation(node).getNonNullableType();
-                const areWeAFunction =
-                    type.symbol?.flags & SymbolFlags.Method ||
-                    type.symbol?.flags & SymbolFlags.Function;
+                const areWeAFunction = type.symbol?.flags & SymbolFlags.Method || type.symbol?.flags & SymbolFlags.Function;
 
                 let exprName: string;
 
                 if (areWeAFunction) {
                     let lhsName: string;
-                    const lhsType = tc.typeToString(
-                        tc
-                            .getTypeAtLocation(node.expression)
-                            .getNonNullableType(),
-                    );
+                    const lhsType = tc.typeToString(tc.getTypeAtLocation(node.expression).getNonNullableType());
 
                     lhsName = props.scope.createUniqueName();
                     exprName = props.scope.createUniqueName();
@@ -102,23 +73,18 @@ export const parsePropertyAccessExpression = (
                             lhsType === "Vector2iConstructor" ||
                             lhsType === "Vector3Constructor" ||
                             lhsType === "Vector3iConstructor") &&
-                        (rhs === "add" ||
-                            rhs === "sub" ||
-                            rhs === "mul" ||
-                            rhs === "div")
+                        (rhs === "add" || rhs === "sub" || rhs === "mul" || rhs === "div")
                     ) {
                         nullCoalesce = [
                             {
                                 type: "before",
                                 line: `var ${lhsName} = ${lhs}`,
-                                lineType:
-                                    ExtraLineType.NullableIntermediateExpression,
+                                lineType: ExtraLineType.NullableIntermediateExpression,
                             },
                             {
                                 type: "before",
                                 line: `var ${exprName} = [funcref(self, "${rhs}_vec_lib") if ${lhsName} != null else null, {}, ${lhsName}]`,
-                                lineType:
-                                    ExtraLineType.NullableIntermediateExpression,
+                                lineType: ExtraLineType.NullableIntermediateExpression,
                             },
                         ];
 
@@ -129,14 +95,12 @@ export const parsePropertyAccessExpression = (
                         {
                             type: "before",
                             line: `var ${lhsName} = ${lhs}`,
-                            lineType:
-                                ExtraLineType.NullableIntermediateExpression,
+                            lineType: ExtraLineType.NullableIntermediateExpression,
                         },
                         {
                             type: "before",
                             line: `var ${exprName} = [funcref(${lhsName}, "${rhs}") if ${lhsName} != null else null, {}, null]`,
-                            lineType:
-                                ExtraLineType.NullableIntermediateExpression,
+                            lineType: ExtraLineType.NullableIntermediateExpression,
                         },
                     ];
 
@@ -148,8 +112,7 @@ export const parsePropertyAccessExpression = (
                         {
                             type: "before",
                             line: `var ${exprName} = ${lhs}`,
-                            lineType:
-                                ExtraLineType.NullableIntermediateExpression,
+                            lineType: ExtraLineType.NullableIntermediateExpression,
                         },
                     ];
                 }
@@ -160,11 +123,7 @@ export const parsePropertyAccessExpression = (
             // Godot does not like var foo = bar.baz when baz is not a key of bar
             // However, Godot is fine with bar.baz = foo even if baz is not a key.
 
-            if (
-                isDictionary(exprType) &&
-                isNullableNode(node.name, props.program.getTypeChecker()) &&
-                isRhs(node)
-            ) {
+            if (isDictionary(exprType) && isNullableNode(node.name, props.program.getTypeChecker()) && isRhs(node)) {
                 return `(${lhs}.${rhs} if ${lhs}.has("${rhs}") else null)`;
             }
 
@@ -174,8 +133,7 @@ export const parsePropertyAccessExpression = (
                 containingClassDecl &&
                 exprType.symbol?.declarations &&
                 exprType.symbol.declarations[0] === containingClassDecl &&
-                node.expression.getText() ===
-                    containingClassDecl.name?.getText()
+                node.expression.getText() === containingClassDecl.name?.getText()
             ) {
                 return `self.${rhs}`;
             }

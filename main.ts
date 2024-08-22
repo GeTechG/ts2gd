@@ -176,34 +176,20 @@ const setup = (tsgdJson: Paths) => {
     let watchProgram: ts.WatchOfConfigFile<ts.EmitAndSemanticDiagnosticsBuilderProgram>;
 
     function reportDiagnostic(diagnostic: ts.Diagnostic) {
-        const errorMessage = ts.flattenDiagnosticMessageText(
-            diagnostic.messageText,
-            formatHost.getNewLine(),
-        );
+        const errorMessage = ts.flattenDiagnosticMessageText(diagnostic.messageText, formatHost.getNewLine());
 
         // Quiet the errors which are not really errors.
 
-        if (
-            errorMessage.match(
-                /Operator '[+\-*/]=?' cannot be applied to types 'Vector[23]' and '(Vector[23]|number)'/,
-            )
-        ) {
+        if (errorMessage.match(/Operator '[+\-*/]=?' cannot be applied to types 'Vector[23]' and '(Vector[23]|number)'/)) {
             return;
         }
 
-        if (
-            errorMessage.match(
-                /The left-hand side of an 'in' expression must be of type/,
-            )
-        ) {
+        if (errorMessage.match(/The left-hand side of an 'in' expression must be of type/)) {
             return;
         }
     }
 
-    const reportWatchStatusChanged = (
-        diagnostic: ts.Diagnostic,
-        newLine: string,
-    ) => {};
+    const reportWatchStatusChanged = (diagnostic: ts.Diagnostic, newLine: string) => {};
 
     // Wait until we've definitely loaded in the definitions
     let interval = setInterval(() => {
@@ -228,14 +214,8 @@ const setup = (tsgdJson: Paths) => {
         reportWatchStatusChanged,
     );
     watchProgram = ts.createWatchProgram(host);
-    const configFile = ts.readJsonConfigFile(
-        tsgdJson.tsconfigPath,
-        ts.sys.readFile,
-    );
-    const opt = ts.parseConfigFileTextToJson(
-        tsgdJson.tsconfigPath,
-        configFile.text,
-    );
+    const configFile = ts.readJsonConfigFile(tsgdJson.tsconfigPath, ts.sys.readFile);
+    const opt = ts.parseConfigFileTextToJson(tsgdJson.tsconfigPath, configFile.text);
     opt.config.useCaseSensitiveFileNames = false;
 
     return {
@@ -248,17 +228,9 @@ const setup = (tsgdJson: Paths) => {
 
 const version = getInstalledVersion();
 
-export const showLoadingMessage = (
-    msg: string,
-    args: ParsedArgs,
-    done = false,
-) => {
+export const showLoadingMessage = (msg: string, args: ParsedArgs, done = false) => {
     if (!args.debug) console.clear();
-    console.info(
-        `${chalk.whiteBright("ts2gd v" + version)}: ${
-            msg + (done ? "" : "...")
-        }`,
-    );
+    console.info(`${chalk.whiteBright("ts2gd v" + version)}: ${msg + (done ? "" : "...")}`);
 };
 
 export const main = async (args: ParsedArgs) => {
@@ -301,21 +273,11 @@ export const main = async (args: ParsedArgs) => {
     }
 
     if (args.buildOnly) {
-        showLoadingMessage(
-            `Build complete in ${(new Date().getTime() - start) / 1000 + "s"}`,
-            args,
-            true,
-        );
+        showLoadingMessage(`Build complete in ${(new Date().getTime() - start) / 1000 + "s"}`, args, true);
 
         process.exit(hadErrors ? -1 : 0);
     } else {
-        showLoadingMessage(
-            `Startup complete in ${
-                (new Date().getTime() - start) / 1000 + "s"
-            }`,
-            args,
-            true,
-        );
+        showLoadingMessage(`Startup complete in ${(new Date().getTime() - start) / 1000 + "s"}`, args, true);
     }
 };
 
