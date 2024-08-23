@@ -115,22 +115,17 @@ This is a ts2gd bug. Please create an issue on GitHub for it.`,
     }
 
     // This can be different than the Godot class name for autoload classes.
-    exportedTsClassName(): string | TsGdError {
+    exportedTsClassName(): string | null {
         const node = this.getClassNode();
 
         if ("error" in node) {
-            return node;
+            throw node;
         }
 
         const name = node?.name;
 
         if (!name) {
-            return {
-                error: ErrorName.ClassCannotBeAnonymous,
-                location: node ?? this.tsRelativePath,
-                description: "This class cannot be anonymous",
-                stack: new Error().stack ?? "",
-            };
+            return null;
         }
 
         return name?.text ?? null;
@@ -223,20 +218,10 @@ ${chalk.green(`export const MyAutoload = new ${classDecl?.name?.text ?? "[class 
     }
 
     tsType(): string {
-        const className = this.exportedTsClassName();
+        let className = this.exportedTsClassName();
 
-        if (className) {
-            return `import('${this.fsPath.slice(0, -".ts".length)}').${className}`;
-        } else {
-            addError({
-                description: `Failed to find className for ${this.fsPath}`,
-                error: ErrorName.Ts2GdError,
-                location: this.fsPath,
-                stack: new Error().stack ?? "",
-            });
-
-            return "any";
-        }
+        let pathSource = path.relative(this.project.paths.rootPath, this.fsPath);
+        return `import('${pathSource.slice(0, -".ts".length)}').${className ?? "default"}`;
     }
 
     private isProjectAutoload(): boolean {

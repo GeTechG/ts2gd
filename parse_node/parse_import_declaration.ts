@@ -93,7 +93,12 @@ export const parseImportDeclaration = (node: ts.ImportDeclaration, props: ParseS
     const namedBindings = node.importClause?.namedBindings;
 
     if (!namedBindings) {
-        throw new Error("Unsupported import type!");
+        return combine({
+            parent: node,
+            nodes: [],
+            props,
+            parsedStrings: () => "",
+        });
     }
 
     let imports: ImportType[] = [];

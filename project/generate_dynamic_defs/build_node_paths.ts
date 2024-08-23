@@ -72,11 +72,11 @@ export default function buildNodePathsTypeForScript(script: AssetSourceFile, pro
     // For every potential relative path, validate that it can be found
     // in each instantiated node.
 
-    const className = script.exportedTsClassName();
+    let className = script.exportedTsClassName();
     const extendedClassName = script.extendedClassName();
 
     if (!className) {
-        return;
+        className = script.name;
     }
 
     let commonRelativePaths: {
@@ -164,13 +164,14 @@ export default function buildNodePathsTypeForScript(script: AssetSourceFile, pro
 
     const pathToImport: { [key: string]: string } = {};
 
-    for (const { path, node } of commonRelativePaths) {
+    for (const { path: _path, node } of commonRelativePaths) {
         const script = node.getScript();
 
         if (script) {
-            pathToImport[path] = `import("${script.fsPath.slice(0, -".ts".length)}").${script.exportedTsClassName()}`;
+            let scriptPath = path.relative(project.paths.rootPath, script.fsPath);
+            pathToImport[_path] = `import("${script.fsPath.slice(0, -".ts".length)}").${script.exportedTsClassName() ?? "default"}`;
         } else {
-            pathToImport[path] = node.tsType();
+            pathToImport[_path] = node.tsType();
         }
     }
 
@@ -254,7 +255,7 @@ import { ${className} } from '${script.tsRelativePath.slice(0, -".ts".length)}'
 declare module '${script.tsRelativePath.slice(0, -".ts".length)}' {
   enum ADD_A_GENERIC_TYPE_TO_GET_NODE_FOR_THIS_TO_WORK {}
 
-  interface ${className} {
+  interface I${className} {
     /**
      * Gets a node by a string path. There are two ways to use this function:
      * 

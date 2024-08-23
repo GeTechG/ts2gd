@@ -109,10 +109,7 @@ export const parseClassDeclaration = (node: ts.ClassDeclaration | ts.ClassExpres
         nodes: node.members,
         props,
         parsedStrings: (...members) => {
-            return `
-${parsedSetterGetters}
-${members.join("")}
-`;
+            return `${parsedSetterGetters}\n${members.join("")}`;
         },
     });
 };

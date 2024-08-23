@@ -299,20 +299,10 @@ export class AssetGodotScene extends BaseAsset {
                 return "any";
             }
 
-            const className = rootSourceFile.exportedTsClassName();
+            let className = rootSourceFile.exportedTsClassName();
 
-            if (!className) {
-                addError({
-                    description: `Failed to find classname for ${rootScript.fsPath}`,
-                    error: ErrorName.Ts2GdError,
-                    location: rootScript.fsPath,
-                    stack: new Error().stack ?? "",
-                });
-
-                return "any";
-            }
-
-            return `import('${rootSourceFile.fsPath.slice(0, -".ts".length)}').${rootSourceFile.exportedTsClassName()}`;
+            let pathSource = path.relative(this.project.paths.rootPath, rootScript.fsPath);
+            return `import('${pathSource.slice(0, -".ts".length)}').${className ?? "default"}`;
         } else {
             return this.rootNode.tsType();
         }

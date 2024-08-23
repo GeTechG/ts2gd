@@ -5,11 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fea15691-f892-412d-bb84-368913fad1ca" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/Main.tscn-editstate-bcb0d2eb5949c52b6a65bfe9de3e985b.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/editor/Main.tscn-editstate-bcb0d2eb5949c52b6a65bfe9de3e985b.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/editor_layout.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/editor/editor_layout.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/filesystem_cache8" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/editor/filesystem_cache8" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/filesystem_update4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/project_metadata.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/editor/project_metadata.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/editor/script_editor_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/editor/script_editor_cache.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/global_script_class_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/global_script_class_cache.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/.godot/uid_cache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/.godot/uid_cache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mockProject/ts_src/MyNode.ts" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/ts_src/MyNode.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mockProject/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/mockProject/tsconfig.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_class_declaration.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_get_accessor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_get_accessor.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parse_node/parse_set_accessor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_set_accessor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_node/parse_import_declaration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_import_declaration.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse_node/parse_super_keyword.ts" beforeDir="false" afterPath="$PROJECT_DIR$/parse_node/parse_super_keyword.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/assets/asset_godot_scene.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/assets/asset_godot_scene.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/assets/asset_image.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/assets/asset_image.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/assets/asset_source_file.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/assets/asset_source_file.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/generate_dynamic_defs/build_node_paths.ts" beforeDir="false" afterPath="$PROJECT_DIR$/project/generate_dynamic_defs/build_node_paths.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,25 +49,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/sergey/Documents/ts2gd",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "npm.generate-defs.executor": "Run",
-    "npm.generate-src.executor": "Run",
-    "settings.editor.selected.configurable": "preferences.sourceCode.TypeScript",
-    "ts.external.directory.path": "/home/sergey/Documents/ts2gd/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/sergey/Documents/ts2gd&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.generate-defs.executor&quot;: &quot;Run&quot;,
+    &quot;npm.generate-src.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.TypeScript&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/sergey/Documents/ts2gd/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RunManager" selected="npm.generate-src">
+}</component>
+  <component name="RunManager" selected="npm.generate-defs">
     <configuration name="generate-defs" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -76,8 +90,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.generate-src" />
         <item itemvalue="npm.generate-defs" />
+        <item itemvalue="npm.generate-src" />
       </list>
     </recent_temporary>
   </component>
@@ -99,6 +113,7 @@
       <workItem from="1724238397187" duration="7000" />
       <workItem from="1724238409043" duration="2191000" />
       <workItem from="1724311536333" duration="6077000" />
+      <workItem from="1724399498465" duration="1246000" />
     </task>
     <servers />
   </component>
@@ -121,21 +136,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/project/assets/asset_source_file.ts</url>
-          <line>347</line>
-          <properties lambdaOrdinal="-1" />
+          <line>332</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/parse_node/parse_source_file.ts</url>
           <line>95</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/parse_node/parse_class_declaration.ts</url>
-          <line>64</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="34" />
+          <url>file://$PROJECT_DIR$/project/generate_dynamic_defs/build_node_paths.ts</url>
+          <line>166</line>
+          <option name="timeStamp" value="62" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

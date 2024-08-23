@@ -16,7 +16,7 @@ export class AssetImage extends BaseAsset {
     }
 
     tsType(): string {
-        return "StreamTexture";
+        return "CompressedTexture2D";
     }
 
     static extensions() {
